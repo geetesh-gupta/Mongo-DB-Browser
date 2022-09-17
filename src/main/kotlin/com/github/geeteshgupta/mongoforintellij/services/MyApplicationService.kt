@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.template.services
+package com.github.geeteshgupta.mongoforintellij.services
 
-import org.jetbrains.plugins.template.MyBundle
+import com.github.geeteshgupta.mongoforintellij.MyBundle
 
 class MyApplicationService {
 
