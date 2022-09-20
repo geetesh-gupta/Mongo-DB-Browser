@@ -1,18 +1,32 @@
+<!--
+  ~ Copyright (c) 2022. Geetesh Gupta
+  -->
+
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.geeteshgupta.mongoforintellij</id>
-    <name>mongo-for-intellij</name>
+    <id>com.gg.plugins.mongo</id>
+    <name>Mongo-for-Intelli-J</name>
     <vendor>geetesh-gupta</vendor>
 
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.geeteshgupta.mongoforintellij.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.geeteshgupta.mongoforintellij.services.MyProjectService"/>
+        <toolWindow id="Mongo Tool Window" secondary="true" icon="AllIcons.General.Modified" anchor="right"
+                    factoryClass="com.gg.plugins.mongo.view.MongoExplorerPanelFactory"/>
+
+        <projectService serviceImplementation="com.gg.plugins.mongo.service.MongoService"/>
+        <projectService serviceImplementation="com.gg.plugins.mongo.service.Notifier"/>
+        <projectService serviceImplementation="com.gg.plugins.mongo.config.MongoConfiguration"/>
+
+        <virtualFileSystem key="mongo" implementationClass="com.gg.plugins.mongo.editor.MongoFileSystem"/>
+
+        <fileEditorProvider implementation="com.gg.plugins.mongo.editor.MongoDataEditorProvider"/>
+
+        <projectConfigurable groupId="tools" groupWeight="10" displayName="Mongo Plugin"
+                             instance="com.gg.plugins.mongo.view.MongoConfigurable"
+                             id="preferences.mongoOptions"/>
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.geeteshgupta.mongoforintellij.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
 </idea-plugin>

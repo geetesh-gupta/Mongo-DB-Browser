@@ -1,0 +1,160 @@
+/*
+ * Copyright (c) 2022. Geetesh Gupta
+ */
+
+package com.gg.plugins.mongo.view;
+
+import com.gg.plugins.mongo.config.MongoConfiguration;
+import com.gg.plugins.mongo.utils.MongoUtils;
+import com.intellij.execution.ExecutionException;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.options.BaseConfigurable;
+import com.intellij.openapi.options.SearchableConfigurable;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.LabeledComponent;
+import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class MongoConfigurable extends BaseConfigurable implements SearchableConfigurable {
+
+	public static final String PLUGIN_SETTINGS_NAME = "Mongo Plugin";
+
+	private final Project project;
+
+	private final MongoConfiguration configuration;
+
+	private JPanel mainPanel;
+
+	private LabeledComponent<TextFieldWithBrowseButton> shellPathField;
+
+	private JLabel testMongoPathFeedbackLabel;
+
+	public MongoConfigurable(Project project) {
+		this.project = project;
+		this.configuration = MongoConfiguration.getInstance(project);
+		mainPanel = new JPanel(new BorderLayout());
+	}
+
+	@Nullable
+	@Override
+	public String getHelpTopic() {
+		return "preferences.mongoOptions";
+	}
+
+	@Nls
+	@Override
+	public String getDisplayName() {
+		return PLUGIN_SETTINGS_NAME;
+	}
+
+	@Nullable
+	@Override
+	public JComponent createComponent() {
+		JPanel mongoShellOptionsPanel = new JPanel();
+		mongoShellOptionsPanel.setLayout(new BoxLayout(mongoShellOptionsPanel, BoxLayout.X_AXIS));
+		shellPathField = createShellPathField();
+		mongoShellOptionsPanel.add(new JLabel("Path to Mongo Shell:"));
+		mongoShellOptionsPanel.add(shellPathField);
+		mongoShellOptionsPanel.add(createTestButton());
+		mongoShellOptionsPanel.add(createFeedbackLabel());
+
+		mainPanel.add(mongoShellOptionsPanel, BorderLayout.NORTH);
+
+		return mainPanel;
+	}
+
+	private LabeledComponent<TextFieldWithBrowseButton> createShellPathField() {
+		LabeledComponent<TextFieldWithBrowseButton> shellPathField = new LabeledComponent<>();
+		TextFieldWithBrowseButton component = new TextFieldWithBrowseButton();
+		component.getChildComponent().setName("shellPathField");
+		shellPathField.setComponent(component);
+		shellPathField.getComponent()
+		              .addBrowseFolderListener("Mongo Shell Configuration",
+				              "",
+				              null,
+				              new FileChooserDescriptor(true, false, false, false, false, false));
+
+		shellPathField.getComponent().setText(configuration.getShellPath());
+
+		return shellPathField;
+	}
+
+	private JButton createTestButton() {
+		JButton testButton = new JButton("Test");
+		testButton.addActionListener(actionEvent -> testPath());
+		return testButton;
+	}
+
+	private JLabel createFeedbackLabel() {
+		testMongoPathFeedbackLabel = new JLabel();
+		return testMongoPathFeedbackLabel;
+	}
+
+	private void testPath() {
+		try {
+			testMongoPathFeedbackLabel.setIcon(null);
+			if (MongoUtils.checkMongoShellPath(getShellPath())) {
+				testMongoPathFeedbackLabel.setIcon(ServerConfigurationPanel.SUCCESS);
+			} else {
+				testMongoPathFeedbackLabel.setIcon(ServerConfigurationPanel.FAIL);
+			}
+		} catch (ExecutionException e) {
+			Messages.showErrorDialog(mainPanel, e.getMessage(), "Error During Mongo Shell Path Checking...");
+		}
+	}
+
+	private String getShellPath() {
+		String shellPath = shellPathField.getComponent().getText();
+		if (StringUtils.isNotBlank(shellPath)) {
+			return shellPath;
+		}
+
+		return null;
+	}
+
+	@Override
+	public void apply() {
+		if (isShellPathModified()) {
+			configuration.setShellPath(getShellPath());
+		}
+	}
+
+	@Override
+	public void reset() {
+	}
+
+	@Override
+	public void disposeUIResources() {
+		mainPanel = null;
+		shellPathField = null;
+	}
+
+	private boolean isShellPathModified() {
+		String existingShellPath = MongoConfiguration.getInstance(project).getShellPath();
+
+		return !StringUtils.equals(existingShellPath, getShellPath());
+	}
+
+	public boolean isModified() {
+		return isShellPathModified();
+	}
+
+	@NotNull
+	@Override
+	public String getId() {
+		return "preferences.mongoOptions";
+	}
+
+	@Nullable
+	@Override
+	public Runnable enableSearch(String option) {
+		return null;
+	}
+}
