@@ -39,15 +39,12 @@ import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.gg.plugins.mongo.utils.GuiUtils.showNotification;
 
@@ -82,7 +79,7 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		treePanel.setLayout(new BorderLayout());
 
 		mongoTree = createTree();
-		mongoTreeBuilder = new MongoTreeBuilder(mongoTree, this);
+		mongoTreeBuilder = new MongoTreeBuilder();
 		mongoTree.setModel(mongoTreeBuilder.getTreeModel());
 
 		setLayout(new BorderLayout());
@@ -97,9 +94,7 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 
 		toolBarPanel.setLayout(new BorderLayout());
 
-		loadAllServerConfigurations();
-
-		installActions();
+		init();
 	}
 
 	private Tree createTree() {
@@ -141,7 +136,7 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		tree.expandRow(0);
 
 		new TreeSpeedSearch(tree, treePath -> {
-			final DefaultMutableTreeNode node = (DefaultMutableTreeNode) treePath.getLastPathComponent();
+			final MongoTreeNode node = (MongoTreeNode) treePath.getLastPathComponent();
 			final Object userObject = node.getUserObject();
 			if (userObject instanceof MongoDatabase) {
 				return ((MongoDatabase) userObject).getName();
@@ -155,6 +150,16 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		return tree;
 	}
 
+	public void init() {
+		loadAllServerConfigurations();
+		installActions();
+		doubleClickEventHandler();
+	}
+
+	private List<ServerConfiguration> getServerConfigurations() {
+		return MongoConfiguration.getInstance(project).getServerConfigurations();
+	}
+
 	private void loadAllServerConfigurations() {
 		this.mongoService.cleanUpServers();
 
@@ -165,55 +170,26 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 	}
 
 	private void installActions() {
-
-		final TreeExpander treeExpander = new TreeExpander() {
-			@Override
-			public void expandAll() {
-				//				MongoExplorerPanel.this.expandAll();
-			}
-
-			@Override
-			public boolean canExpand() {
-				return !getServerConfigurations().isEmpty();
-			}
-
-			@Override
-			public void collapseAll() {
-				//				MongoExplorerPanel.this.collapseAll();
-			}
-
-			@Override
-			public boolean canCollapse() {
-				return !getServerConfigurations().isEmpty();
-			}
-		};
-
-		CommonActionsManager actionsManager = CommonActionsManager.getInstance();
-
-		final AnAction expandAllAction = actionsManager.createExpandAllAction(treeExpander, rootPanel);
-		final AnAction collapseAllAction = actionsManager.createCollapseAllAction(treeExpander, rootPanel);
-
+		Actions actions = new Actions();
 		Disposer.register(this, () -> {
-			collapseAllAction.unregisterCustomShortcutSet(rootPanel);
-			expandAllAction.unregisterCustomShortcutSet(rootPanel);
+			actions.collapseAllAction.unregisterCustomShortcutSet(rootPanel);
+			actions.expandAllAction.unregisterCustomShortcutSet(rootPanel);
 		});
 
 		DefaultActionGroup actionGroup = new DefaultActionGroup("MongoExplorerGroup", false);
-		RefreshServerAction refreshServerAction = new RefreshServerAction(this);
-		AddServerAction addServerAction = new AddServerAction(this);
-		DuplicateServerAction duplicateServerAction = new DuplicateServerAction(this);
-		if (ApplicationManager.getApplication() != null) {
-			actionGroup.add(addServerAction);
-			actionGroup.add(duplicateServerAction);
-			actionGroup.addSeparator();
-			actionGroup.add(refreshServerAction);
-			actionGroup.add(new MongoConsoleAction(this));
-			actionGroup.add(expandAllAction);
-			actionGroup.add(collapseAllAction);
-			actionGroup.addSeparator();
-			actionGroup.add(new OpenPluginSettingsAction());
-		}
 
+		if (ApplicationManager.getApplication() != null) {
+			actionGroup.add(actions.addServerAction);
+			actionGroup.add(actions.duplicateServerAction);
+			actionGroup.addSeparator();
+			actionGroup.add(actions.refreshServerAction);
+			actionGroup.add(actions.mongoConsoleAction);
+			actionGroup.addSeparator();
+			actionGroup.add(actions.expandAllAction);
+			actionGroup.add(actions.collapseAllAction);
+			actionGroup.addSeparator();
+			actionGroup.add(actions.openPluginSettingsAction);
+		}
 		GuiUtils.installActionGroupInToolBar(actionGroup,
 				toolBarPanel,
 				ActionManager.getInstance(),
@@ -222,16 +198,17 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 
 		DefaultActionGroup actionPopupGroup = new DefaultActionGroup("MongoExplorerPopupGroup", true);
 		if (ApplicationManager.getApplication() != null) {
-			actionPopupGroup.add(refreshServerAction);
-			actionPopupGroup.add(new EditServerAction(this));
-			actionPopupGroup.add(duplicateServerAction);
-			actionPopupGroup.add(new DeleteAction(this));
+			actionPopupGroup.add(actions.refreshServerAction);
+			actionPopupGroup.add(actions.editServerAction);
+			actionPopupGroup.add(actions.duplicateServerAction);
+			actionPopupGroup.add(actions.deleteAction);
 			actionPopupGroup.addSeparator();
-			actionPopupGroup.add(new ViewCollectionValuesAction(this));
+			actionPopupGroup.add(actions.viewCollectionValuesAction);
 		}
-
 		PopupHandler.installPopupMenu(mongoTree, actionPopupGroup, "POPUP");
+	}
 
+	private void doubleClickEventHandler() {
 		new DoubleClickListener() {
 			@Override
 			protected boolean onDoubleClick(@NotNull MouseEvent event) {
@@ -239,35 +216,39 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 					return false;
 				}
 
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) mongoTree.getLastSelectedPathComponent();
-				if (node != null) {
-					Object object = node.getUserObject();
-					if (object instanceof MongoServer) {
-						//					MongoServer selectedMongoServer = getSelectedServer();
-						//					if (selectedMongoServer != null) {
-						openServer((MongoServer) object);
-						return true;
-						//					}
-					} else if (object instanceof MongoDatabase) {
-						return true;
-					} else if (object instanceof MongoCollection) {
-						loadSelectedCollectionValues((MongoCollection) object);
-						return true;
-					}
+				MongoTreeNode node = getSelectedNode();
+
+				if (node.getType() == MongoTreeNodeEnum.MongoCollection) {
+					loadSelectedCollectionValues((MongoCollection) node.getUserObject());
+				}
+				if (node.getType() == MongoTreeNodeEnum.MongoServer &&
+				    ((MongoServer) node.getUserObject()).getDatabases().isEmpty()) {
+					openServer((MongoServer) node.getUserObject());
 				}
 				return false;
 			}
 		}.installOn(mongoTree);
-
-	}
-
-	private List<ServerConfiguration> getServerConfigurations() {
-		return MongoConfiguration.getInstance(project).getServerConfigurations();
 	}
 
 	public void addConfiguration(ServerConfiguration serverConfiguration) {
 		MongoServer mongoServer = mongoTreeBuilder.addConfiguration(serverConfiguration);
 		mongoService.registerServer(mongoServer);
+	}
+
+	private MongoTreeNode getSelectedNode() {
+		return (MongoTreeNode) mongoTree.getLastSelectedPathComponent();
+	}
+
+	public void loadSelectedCollectionValues(MongoCollection mongoCollection) {
+		MongoServer parentServer = mongoCollection.getParentDatabase().getParentServer();
+		ServerConfiguration configuration = parentServer.getConfiguration();
+
+		Navigation navigation = new Navigation();
+		MongoQueryOptions queryOptions = new MongoQueryOptions();
+		queryOptions.setResultLimit(configuration.getDefaultRowLimit());
+		navigation.addNewWayPoint(mongoCollection, queryOptions);
+
+		MongoFileSystem.getInstance().openEditor(new MongoObjectFile(project, configuration, navigation));
 	}
 
 	public void openServer(final MongoServer mongoServer) {
@@ -284,15 +265,7 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 							return;
 						}
 						mongoServer.setDatabases(mongoDatabases);
-						mongoTreeBuilder.openServer(mongoServer);
-						//						                                                .makeVisible
-						//						                                                (mongoServer,
-						//						                                                mongoTree, v -> {}
-						//						                .onSuccess(e -> mongoTreeBuilder.getTreeModel()
-						//						                                                .makeVisible
-						//						                                                (mongoServer,
-						//						                                                mongoTree, v -> {}));
-
+						refreshNodeChildren(mongoTreeBuilder.getNodeFromUserObject(mongoServer));
 					} catch (ConfigurationException confEx) {
 						mongoServer.setStatus(MongoServer.Status.ERROR);
 
@@ -312,39 +285,34 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		});
 	}
 
-	public void loadSelectedCollectionValues(MongoCollection mongoCollection) {
-		MongoServer parentServer = mongoCollection.getParentDatabase().getParentServer();
-		ServerConfiguration configuration = parentServer.getConfiguration();
-
-		Navigation navigation = new Navigation();
-		MongoQueryOptions queryOptions = new MongoQueryOptions();
-		queryOptions.setResultLimit(configuration.getDefaultRowLimit());
-		navigation.addNewWayPoint(mongoCollection, queryOptions);
-
-		MongoFileSystem.getInstance().openEditor(new MongoObjectFile(project, configuration, navigation));
+	private void refreshNodeChildren(MongoTreeNode node) {
+		if (node != null) {
+			switch (node.getType()) {
+				case ROOT: {
+					mongoTreeBuilder.refreshNodeChildren(node, false);
+				}
+				case MongoServer: {
+					mongoTreeBuilder.refreshNodeChildren(node, false);
+				}
+				case MongoDatabase: {
+					mongoTreeBuilder.refreshNodeChildren(node, true);
+				}
+			}
+		}
 	}
 
-	public MongoServer getSelectedServer() {
-		Set<MongoServer> selectedElements =
-				Arrays.stream(mongoTree.getSelectedNodes(DefaultMutableTreeNode.class, null))
-				      .map(n -> (MongoServer) n.getUserObject())
-				      .collect(Collectors.toSet());
-		if (selectedElements.isEmpty()) {
-			return null;
-		}
-		return selectedElements.iterator().next();
+	private void expandAll() {
+		mongoTreeBuilder.getRootNode()
+		                .getChildren()
+		                .forEach(c -> mongoTree.expandPath(new TreePath(mongoTreeBuilder.getTreeModel()
+		                                                                                .getPathToRoot(c))));
 	}
 
-	public MongoCollection getSelectedCollection() {
-
-		Set<MongoCollection> selectedElements =
-				Arrays.stream(mongoTree.getSelectedNodes(DefaultMutableTreeNode.class, null))
-				      .map(n -> (MongoCollection) n.getUserObject())
-				      .collect(Collectors.toSet());
-		if (selectedElements.isEmpty()) {
-			return null;
-		}
-		return selectedElements.iterator().next();
+	private void collapseAll() {
+		mongoTreeBuilder.getRootNode()
+		                .getChildren()
+		                .forEach(c -> mongoTree.collapsePath(new TreePath(mongoTreeBuilder.getTreeModel()
+		                                                                                  .getPathToRoot(c))));
 	}
 
 	public JPanel getContent() {
@@ -358,6 +326,53 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 	@Override
 	public void dispose() {
 
+	}
+
+	private class Actions {
+		final TreeExpander treeExpander = new TreeExpander() {
+			@Override
+			public void expandAll() {
+				MongoExplorerPanel.this.expandAll();
+			}
+
+			@Override
+			public boolean canExpand() {
+				return !getServerConfigurations().isEmpty();
+			}
+
+			@Override
+			public void collapseAll() {
+				MongoExplorerPanel.this.collapseAll();
+			}
+
+			@Override
+			public boolean canCollapse() {
+				return !getServerConfigurations().isEmpty();
+			}
+		};
+
+		public RefreshServerAction refreshServerAction = new RefreshServerAction(MongoExplorerPanel.this);
+
+		public AddServerAction addServerAction = new AddServerAction(MongoExplorerPanel.this);
+
+		public DuplicateServerAction duplicateServerAction = new DuplicateServerAction(MongoExplorerPanel.this);
+
+		public EditServerAction editServerAction = new EditServerAction(MongoExplorerPanel.this);
+
+		public DeleteAction deleteAction = new DeleteAction(MongoExplorerPanel.this);
+
+		public ViewCollectionValuesAction viewCollectionValuesAction =
+				new ViewCollectionValuesAction(MongoExplorerPanel.this);
+
+		public OpenPluginSettingsAction openPluginSettingsAction = new OpenPluginSettingsAction();
+
+		public MongoConsoleAction mongoConsoleAction = new MongoConsoleAction(MongoExplorerPanel.this);
+
+		CommonActionsManager actionsManager = CommonActionsManager.getInstance();
+
+		public final AnAction expandAllAction = actionsManager.createExpandAllAction(treeExpander, rootPanel);
+
+		public final AnAction collapseAllAction = actionsManager.createCollapseAllAction(treeExpander, rootPanel);
 	}
 
 }
