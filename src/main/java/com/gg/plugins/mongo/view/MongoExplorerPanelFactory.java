@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class MongoExplorerPanelFactory implements ToolWindowFactory {
 	public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-		MongoExplorerPanel myToolWindow = new MongoExplorerPanel(project, toolWindow);
+		MongoExplorerPanel myToolWindow = new MongoExplorerPanel(project);
 		ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
 		Content content = contentFactory.createContent(myToolWindow.getContent(), "", false);
 		toolWindow.getContentManager().addContent(content);
