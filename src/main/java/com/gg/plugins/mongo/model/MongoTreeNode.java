@@ -53,7 +53,8 @@ public class MongoTreeNode extends DefaultMutableTreeNode {
 
 	public List<MongoTreeNode> getChildren() {
 		List<MongoTreeNode> nodes = new ArrayList<>();
-		children.forEach(c -> nodes.add((MongoTreeNode) c));
+		if (getChildCount() > 0)
+			children.forEach(c -> nodes.add((MongoTreeNode) c));
 		return nodes;
 	}
 

@@ -4,6 +4,9 @@
 
 package com.gg.plugins.mongo.action.explorer;
 
+import com.gg.plugins.mongo.config.ServerConfiguration;
+import com.gg.plugins.mongo.model.MongoServer;
+import com.gg.plugins.mongo.view.ConfigurationDialog;
 import com.gg.plugins.mongo.view.MongoExplorerPanel;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -28,23 +31,22 @@ public class EditServerAction extends AnAction implements DumbAware {
 
 	@Override
 	public void update(AnActionEvent event) {
-		//		event.getPresentation().setVisible(mongoExplorerPanel.getSelectedServer() != null);
+		event.getPresentation().setVisible(mongoExplorerPanel.getSelectedServer() != null);
 	}
 
 	@Override
 	public void actionPerformed(AnActionEvent event) {
-		//		MongoServer mongoServer = mongoExplorerPanel.getSelectedServer();
-		//		ServerConfiguration configuration = mongoServer.getConfiguration();
-		//
-		//		ConfigurationDialog dialog = new ConfigurationDialog(event.getProject(), mongoExplorerPanel,
-		//		configuration);
-		//		dialog.setTitle("Edit a Mongo Server");
-		//		dialog.show();
-		//		if (!dialog.isOK()) {
-		//			return;
-		//		}
-		//		if (mongoServer.isConnected()) {
-		//			mongoExplorerPanel.openServer(mongoServer);
-		//		}
+		MongoServer mongoServer = mongoExplorerPanel.getSelectedServer();
+		ServerConfiguration configuration = mongoServer.getConfiguration();
+
+		ConfigurationDialog dialog = new ConfigurationDialog(event.getProject(), mongoExplorerPanel, configuration);
+		dialog.setTitle("Edit a Mongo Server");
+		dialog.show();
+		if (!dialog.isOK()) {
+			return;
+		}
+		if (mongoServer.isConnected()) {
+			mongoExplorerPanel.openServer(mongoServer);
+		}
 	}
 }

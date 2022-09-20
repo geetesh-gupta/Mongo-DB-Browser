@@ -4,6 +4,7 @@
 
 package com.gg.plugins.mongo.action.explorer;
 
+import com.gg.plugins.mongo.config.ServerConfiguration;
 import com.gg.plugins.mongo.view.MongoExplorerPanel;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -28,14 +29,14 @@ public class DuplicateServerAction extends AnAction implements DumbAware {
 
 	@Override
 	public void update(AnActionEvent event) {
-		//		event.getPresentation().setVisible(mongoExplorerPanel.getSelectedServer() != null);
+		event.getPresentation().setVisible(mongoExplorerPanel.getSelectedServer() != null);
 	}
 
 	@Override
 	public void actionPerformed(AnActionEvent e) {
-		//		ServerConfiguration configuration = mongoExplorerPanel.getSelectedServer().getConfiguration();
-		//		ServerConfiguration clonedConfiguration = configuration.clone();
-		//		clonedConfiguration.setLabel("Copy of " + clonedConfiguration.getLabel());
-		//		mongoExplorerPanel.addConfiguration(clonedConfiguration);
+		ServerConfiguration configuration = mongoExplorerPanel.getSelectedServer().getConfiguration();
+		ServerConfiguration clonedConfiguration = configuration.clone();
+		clonedConfiguration.setLabel("Copy of " + clonedConfiguration.getLabel());
+		mongoExplorerPanel.addConfiguration(clonedConfiguration);
 	}
 }

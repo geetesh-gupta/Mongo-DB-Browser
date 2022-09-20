@@ -4,6 +4,7 @@
 
 package com.gg.plugins.mongo.action.explorer;
 
+import com.gg.plugins.mongo.model.MongoTreeNode;
 import com.gg.plugins.mongo.view.MongoExplorerPanel;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -30,34 +31,15 @@ public class DeleteAction extends AnAction implements DumbAware {
 
 	@Override
 	public void update(AnActionEvent event) {
-		//		event.getPresentation().setVisible(mongoExplorerPanel.getSelectedItem() != null);
+		event.getPresentation().setVisible(mongoExplorerPanel.getSelectedNode() != null);
 	}
 
 	@Override
 	public void actionPerformed(AnActionEvent event) {
-		//		Object selectedItem = mongoExplorerPanel.getSelectedItem();
-		//
-		//		if (selectedItem instanceof MongoServer) {
-		//			MongoServer mongoServer = (MongoServer) selectedItem;
-		//			deleteItem("server", mongoServer.getLabel(), () -> mongoExplorerPanel.removeSelectedServer
-		//			(mongoServer));
-		//			return;
-		//		}
-		//
-		//		if (selectedItem instanceof MongoDatabase) {
-		//			MongoDatabase mongoDatabase = (MongoDatabase) selectedItem;
-		//			deleteItem("database",
-		//					mongoDatabase.getName(),
-		//					() -> mongoExplorerPanel.removeSelectedDatabase(mongoDatabase));
-		//			return;
-		//		}
-		//
-		//		if (selectedItem instanceof MongoCollection) {
-		//			MongoCollection mongoCollection = (MongoCollection) selectedItem;
-		//			deleteItem("collection",
-		//					mongoCollection.getName(),
-		//					() -> mongoExplorerPanel.removeSelectedCollection(mongoCollection));
-		//		}
+		MongoTreeNode selectedNode = mongoExplorerPanel.getSelectedNode();
+		deleteItem(selectedNode.getType().type,
+				selectedNode.getUserObject().toString(),
+				() -> mongoExplorerPanel.removeNode(selectedNode));
 	}
 
 	private void deleteItem(String itemTypeLabel, String itemLabel, Runnable deleteOperation) {

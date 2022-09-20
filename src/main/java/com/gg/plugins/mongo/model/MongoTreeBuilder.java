@@ -12,7 +12,6 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,7 @@ public class MongoTreeBuilder implements Disposable {
 
 	public MongoTreeBuilder() {
 		rootNode = new MongoTreeNode(serverConfigurations);
-		treeModel = new DefaultTreeModel(rootNode);
+		treeModel = new DefaultTreeModel(rootNode, true);
 		treeModelListener = new MyTreeModelListener();
 		treeModel.addTreeModelListener(treeModelListener);
 	}
@@ -47,44 +46,51 @@ public class MongoTreeBuilder implements Disposable {
 	}
 
 	public void add(MongoTreeNode childNode, MongoTreeNode parentNode) {
-		treeModel.insertNodeInto(childNode, parentNode, treeModel.getChildCount(childNode));
+		if (treeModel.getIndexOfChild(parentNode, childNode) == -1)
+			treeModel.insertNodeInto(childNode, parentNode, treeModel.getChildCount(childNode));
+	}
+
+	public void removeAllChildren(MongoTreeNode parentNode) {
+		if (parentNode.getChildCount() > 0) {
+			parentNode.getChildren().forEach(treeModel::removeNodeFromParent);
+		}
 	}
 
 	public void refreshNodeChildren(@NotNull MongoTreeNode parentNode, boolean recursive) {
-		List<MongoTreeNode> children = new ArrayList<>();
+		removeAllChildren(parentNode);
 		Object userObject = parentNode.getUserObject();
 		switch (parentNode.getType()) {
 			case ROOT: {
-				serverConfigurations.keySet().forEach(obj -> children.add(new MongoTreeNode(obj)));
+				serverConfigurations.keySet().forEach(obj -> add(new MongoTreeNode(obj), rootNode));
 				break;
 			}
 			case MongoServer: {
-				((MongoServer) userObject).getDatabases().forEach(obj -> children.add(new MongoTreeNode(obj)));
+				((MongoServer) userObject).getDatabases().forEach(obj -> add(new MongoTreeNode(obj), parentNode));
 				break;
 			}
 			case MongoDatabase: {
-				((MongoDatabase) userObject).getCollections().forEach(obj -> children.add(new MongoTreeNode(obj)));
+				((MongoDatabase) userObject).getCollections().forEach(obj -> add(new MongoTreeNode(obj), parentNode));
 				break;
 			}
 			case MongoCollection:
 			default:
 				break;
 		}
-		parentNode.removeAllChildren();
-		children.forEach(childNode -> {
-			add(childNode, parentNode);
-			if (recursive) {
-				refreshNodeChildren(childNode, true);
-			}
-		});
+		if (recursive && parentNode.getChildCount() > 0) {
+			parentNode.getChildren().forEach(childNode -> refreshNodeChildren(childNode, true));
+		}
 	}
 
 	public MongoTreeNode getNodeFromUserObject(Object userObject) throws Exception {
-		MongoTreeNode parentNode = rootNode;
-		if (userObject instanceof MongoDatabase) {
+		MongoTreeNode parentNode = null;
+		if (userObject instanceof MongoServer) {
+			parentNode = rootNode;
+		} else if (userObject instanceof MongoDatabase) {
 			parentNode = getNodeFromUserObject(((MongoDatabase) userObject).getParentServer());
 		} else if (userObject instanceof MongoCollection) {
 			parentNode = getNodeFromUserObject(((MongoCollection) userObject).getParentDatabase());
+		} else {
+			return null;
 		}
 
 		if (parentNode.getChildren() == null) {

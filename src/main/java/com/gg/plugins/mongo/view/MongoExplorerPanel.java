@@ -132,8 +132,7 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		tree.getEmptyText().clear();
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.setName("mongoTree");
-		tree.setRootVisible(true);
-		tree.expandRow(0);
+		tree.setRootVisible(false);
 
 		new TreeSpeedSearch(tree, treePath -> {
 			final MongoTreeNode node = (MongoTreeNode) treePath.getLastPathComponent();
@@ -217,13 +216,14 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 				}
 
 				MongoTreeNode node = getSelectedNode();
+				Object userObject = node.getUserObject();
 
-				if (node.getType() == MongoTreeNodeEnum.MongoCollection) {
-					loadSelectedCollectionValues((MongoCollection) node.getUserObject());
-				}
-				if (node.getType() == MongoTreeNodeEnum.MongoServer &&
-				    ((MongoServer) node.getUserObject()).getDatabases().isEmpty()) {
-					openServer((MongoServer) node.getUserObject());
+				if (userObject instanceof MongoServer && node.getChildren().isEmpty()) {
+					openServer((MongoServer) userObject);
+				} else if (userObject instanceof MongoDatabase && node.getChildren().isEmpty()) {
+					refreshNodeChildren(node);
+				} else if (userObject instanceof MongoCollection) {
+					loadSelectedCollectionValues((MongoCollection) userObject);
 				}
 				return false;
 			}
@@ -235,20 +235,8 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		mongoService.registerServer(mongoServer);
 	}
 
-	private MongoTreeNode getSelectedNode() {
+	public MongoTreeNode getSelectedNode() {
 		return (MongoTreeNode) mongoTree.getLastSelectedPathComponent();
-	}
-
-	public void loadSelectedCollectionValues(MongoCollection mongoCollection) {
-		MongoServer parentServer = mongoCollection.getParentDatabase().getParentServer();
-		ServerConfiguration configuration = parentServer.getConfiguration();
-
-		Navigation navigation = new Navigation();
-		MongoQueryOptions queryOptions = new MongoQueryOptions();
-		queryOptions.setResultLimit(configuration.getDefaultRowLimit());
-		navigation.addNewWayPoint(mongoCollection, queryOptions);
-
-		MongoFileSystem.getInstance().openEditor(new MongoObjectFile(project, configuration, navigation));
 	}
 
 	public void openServer(final MongoServer mongoServer) {
@@ -289,10 +277,10 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		if (node != null) {
 			switch (node.getType()) {
 				case ROOT: {
-					mongoTreeBuilder.refreshNodeChildren(node, false);
 				}
 				case MongoServer: {
 					mongoTreeBuilder.refreshNodeChildren(node, false);
+					break;
 				}
 				case MongoDatabase: {
 					mongoTreeBuilder.refreshNodeChildren(node, true);
@@ -301,18 +289,44 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		}
 	}
 
+	public void loadSelectedCollectionValues(MongoCollection mongoCollection) {
+		MongoServer parentServer = mongoCollection.getParentDatabase().getParentServer();
+		ServerConfiguration configuration = parentServer.getConfiguration();
+
+		Navigation navigation = new Navigation();
+		MongoQueryOptions queryOptions = new MongoQueryOptions();
+		queryOptions.setResultLimit(configuration.getDefaultRowLimit());
+		navigation.addNewWayPoint(mongoCollection, queryOptions);
+
+		MongoFileSystem.getInstance().openEditor(new MongoObjectFile(project, configuration, navigation));
+	}
+
+	public void removeNode(MongoTreeNode mongoTreeNode) {
+		mongoTreeBuilder.getTreeModel().removeNodeFromParent(mongoTreeNode);
+	}
+
+	public MongoServer getSelectedServer() {
+		MongoTreeNode selectedNode = getSelectedNode();
+		if (selectedNode.getUserObject() instanceof MongoServer) {
+			return (MongoServer) selectedNode.getUserObject();
+		}
+		return null;
+	}
+
 	private void expandAll() {
-		mongoTreeBuilder.getRootNode()
-		                .getChildren()
-		                .forEach(c -> mongoTree.expandPath(new TreePath(mongoTreeBuilder.getTreeModel()
-		                                                                                .getPathToRoot(c))));
+		if (mongoTreeBuilder.getRootNode().getChildCount() > 0)
+			mongoTreeBuilder.getRootNode()
+			                .getChildren()
+			                .forEach(c -> mongoTree.expandPath(new TreePath(mongoTreeBuilder.getTreeModel()
+			                                                                                .getPathToRoot(c))));
 	}
 
 	private void collapseAll() {
-		mongoTreeBuilder.getRootNode()
-		                .getChildren()
-		                .forEach(c -> mongoTree.collapsePath(new TreePath(mongoTreeBuilder.getTreeModel()
-		                                                                                  .getPathToRoot(c))));
+		if (mongoTreeBuilder.getRootNode().getChildCount() > 0)
+			mongoTreeBuilder.getRootNode()
+			                .getChildren()
+			                .forEach(c -> mongoTree.collapsePath(new TreePath(mongoTreeBuilder.getTreeModel()
+			                                                                                  .getPathToRoot(c))));
 	}
 
 	public JPanel getContent() {
