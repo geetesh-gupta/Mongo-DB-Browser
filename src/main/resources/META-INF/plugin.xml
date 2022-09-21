@@ -25,6 +25,8 @@
         <projectConfigurable groupId="tools" groupWeight="10" displayName="Mongo Plugin"
                              instance="com.gg.plugins.mongo.view.MongoConfigurable"
                              id="preferences.mongoOptions"/>
+
+        <notificationGroup id="Mongo" displayType="BALLOON"/>
     </extensions>
 
     <applicationListeners>

@@ -4,11 +4,13 @@
 
 package com.gg.plugins.mongo.model;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-public class MongoDatabase {
+public class MongoDatabase implements Comparable<MongoDatabase> {
 	private final String name;
 
 	private final MongoServer parentServer;
@@ -39,5 +41,10 @@ public class MongoDatabase {
 
 	public String getName() {
 		return name;
+	}
+
+	@Override
+	public int compareTo(@NotNull MongoDatabase o) {
+		return name.compareTo(o.getName());
 	}
 }

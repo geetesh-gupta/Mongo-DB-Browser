@@ -6,8 +6,13 @@ package com.gg.plugins.mongo.action.explorer;
 
 import com.gg.plugins.mongo.config.MongoConfiguration;
 import com.gg.plugins.mongo.config.ServerConfiguration;
+import com.gg.plugins.mongo.model.MongoDatabase;
+import com.gg.plugins.mongo.model.MongoTreeNode;
+import com.gg.plugins.mongo.model.MongoTreeNodeEnum;
 import com.gg.plugins.mongo.utils.GuiUtils;
 import com.gg.plugins.mongo.view.MongoExplorerPanel;
+import com.gg.plugins.mongo.view.console.MongoConsoleRunner;
+import com.intellij.execution.ExecutionException;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -27,17 +32,18 @@ public class MongoConsoleAction extends AnAction implements DumbAware {
 	@Override
 	public void update(AnActionEvent e) {
 		final Project project = e.getData(PlatformDataKeys.PROJECT);
+		MongoTreeNode mongoTreeNode = mongoExplorerPanel.getSelectedNode();
 
-		boolean enabled = project != null;
-		if (!enabled) {
+		if (project != null && mongoTreeNode != null && mongoTreeNode.getType() == MongoTreeNodeEnum.MongoDatabase) {
+			MongoDatabase selectedDatabase = (MongoDatabase) mongoTreeNode.getUserObject();
+			e.getPresentation().setEnabled(selectedDatabase != null);
+			if (selectedDatabase != null) {
+				ServerConfiguration configuration = mongoExplorerPanel.getServerConfiguration(mongoTreeNode);
+				e.getPresentation().setVisible(isShellPathSet(project) && isSingleServerInstance(configuration));
+			}
+		} else {
+			e.getPresentation().setEnabled(false);
 		}
-		//
-		//		MongoDatabase selectedDatabase = mongoExplorerPanel.getSelectedDatabase();
-		//		e.getPresentation().setEnabled(selectedDatabase != null);
-		//		if (selectedDatabase != null) {
-		//			ServerConfiguration configuration = selectedDatabase.getParentServer().getConfiguration();
-		//			e.getPresentation().setVisible(isShellPathSet(project) && isSingleServerInstance(configuration));
-		//		}
 	}
 
 	@Override
@@ -49,14 +55,15 @@ public class MongoConsoleAction extends AnAction implements DumbAware {
 	}
 
 	private void runShell(Project project) {
-		//		MongoConsoleRunner consoleRunner = new MongoConsoleRunner(project,
-		//				mongoExplorerPanel.getConfiguration(),
-		//				mongoExplorerPanel.getSelectedDatabase());
-		//		try {
-		//			consoleRunner.initAndRun();
-		//		} catch (ExecutionException e1) {
-		//			throw new RuntimeException(e1);
-		//		}
+		MongoTreeNode selectedNode = mongoExplorerPanel.getSelectedNode();
+		ServerConfiguration serverConfiguration = mongoExplorerPanel.getServerConfiguration(selectedNode);
+		MongoConsoleRunner consoleRunner =
+				new MongoConsoleRunner(project, serverConfiguration, (MongoDatabase) selectedNode.getUserObject());
+		try {
+			consoleRunner.initAndRun();
+		} catch (ExecutionException e1) {
+			throw new RuntimeException(e1);
+		}
 	}
 
 	private boolean isShellPathSet(Project project) {

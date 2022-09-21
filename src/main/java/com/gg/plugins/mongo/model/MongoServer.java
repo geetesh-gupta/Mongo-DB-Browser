@@ -5,13 +5,15 @@
 package com.gg.plugins.mongo.model;
 
 import com.gg.plugins.mongo.config.ServerConfiguration;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
-public class MongoServer {
+public class MongoServer implements Comparable<MongoServer> {
 
-	private List<MongoDatabase> databases = new LinkedList<>();
+	private Set<MongoDatabase> databases = new TreeSet<>();
 
 	private ServerConfiguration configuration;
 
@@ -29,12 +31,17 @@ public class MongoServer {
 		return !databases.isEmpty();
 	}
 
-	public List<MongoDatabase> getDatabases() {
+	public Set<MongoDatabase> getDatabases() {
 		return databases;
 	}
 
-	public void setDatabases(List<MongoDatabase> databases) {
+	public void setDatabases(Set<MongoDatabase> databases) {
 		this.databases = databases;
+	}
+
+	public void updateDatabase(MongoDatabase database) {
+		this.databases.remove(database);
+		this.databases.add(database);
 	}
 
 	public Status getStatus() {
@@ -60,6 +67,11 @@ public class MongoServer {
 
 	public String getLabel() {
 		return configuration.getLabel();
+	}
+
+	@Override
+	public int compareTo(@NotNull MongoServer o) {
+		return getLabel().compareTo(o.getLabel());
 	}
 
 	public enum Status {

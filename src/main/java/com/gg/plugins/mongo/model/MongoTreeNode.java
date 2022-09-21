@@ -4,6 +4,7 @@
 
 package com.gg.plugins.mongo.model;
 
+import com.gg.plugins.mongo.config.ServerConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -16,10 +17,10 @@ public class MongoTreeNode extends DefaultMutableTreeNode {
 
 	public MongoTreeNode(@NotNull Object userObject) {
 		super(userObject, !(userObject instanceof MongoCollection));
-		this.type = getTypeFromUserObject(userObject);
+		this.type = MongoTreeNode.getTypeFromUserObject(userObject);
 	}
 
-	private MongoTreeNodeEnum getTypeFromUserObject(Object element) {
+	public static MongoTreeNodeEnum getTypeFromUserObject(Object element) {
 		if (element instanceof MongoServer) {
 			return MongoTreeNodeEnum.MongoServer;
 		} else if (element instanceof MongoDatabase) {
@@ -28,6 +29,39 @@ public class MongoTreeNode extends DefaultMutableTreeNode {
 			return MongoTreeNodeEnum.MongoCollection;
 		}
 		return MongoTreeNodeEnum.ROOT;
+	}
+
+	public static ServerConfiguration getServerConfiguration(Object element) {
+		if (element instanceof MongoServer) {
+			return ((MongoServer) element).getConfiguration();
+		} else if (element instanceof MongoDatabase) {
+			return ((MongoDatabase) element).getParentServer().getConfiguration();
+		} else if (element instanceof MongoCollection) {
+			return ((MongoCollection) element).getParentDatabase().getParentServer().getConfiguration();
+		}
+		return null;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		assert obj instanceof MongoTreeNode;
+		return toString().equals(obj.toString());
+	}
+
+	public List<MongoTreeNode> getChildren() {
+		List<MongoTreeNode> nodes = new ArrayList<>();
+		if (getChildCount() > 0)
+			children.forEach(c -> nodes.add((MongoTreeNode) c));
+		return nodes;
+	}
+
+	public MongoTreeNodeEnum getType() {
+		return type;
+	}
+
+	@Override
+	public MongoTreeNode getParent() {
+		return (MongoTreeNode) super.getParent();
 	}
 
 	@Override
@@ -49,16 +83,5 @@ public class MongoTreeNode extends DefaultMutableTreeNode {
 			default:
 				return userObject != null ? userObject.toString() : "<other>";
 		}
-	}
-
-	public List<MongoTreeNode> getChildren() {
-		List<MongoTreeNode> nodes = new ArrayList<>();
-		if (getChildCount() > 0)
-			children.forEach(c -> nodes.add((MongoTreeNode) c));
-		return nodes;
-	}
-
-	public MongoTreeNodeEnum getType() {
-		return type;
 	}
 }

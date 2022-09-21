@@ -13,6 +13,8 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 
+import java.util.Objects;
+
 public class AddServerAction extends AnAction implements DumbAware {
 	private final MongoExplorerPanel mongoExplorerPanel;
 
@@ -34,7 +36,8 @@ public class AddServerAction extends AnAction implements DumbAware {
 			return;
 		}
 
-		MongoConfiguration mongoConfiguration = MongoConfiguration.getInstance(event.getProject());
+		MongoConfiguration mongoConfiguration =
+				MongoConfiguration.getInstance(Objects.requireNonNull(event.getProject()));
 		mongoConfiguration.addServerConfiguration(serverConfiguration);
 		mongoExplorerPanel.addConfiguration(serverConfiguration);
 	}

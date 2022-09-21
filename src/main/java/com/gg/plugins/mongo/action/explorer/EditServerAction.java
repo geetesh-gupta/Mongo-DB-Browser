@@ -4,8 +4,11 @@
 
 package com.gg.plugins.mongo.action.explorer;
 
+import com.gg.plugins.mongo.config.MongoConfiguration;
 import com.gg.plugins.mongo.config.ServerConfiguration;
 import com.gg.plugins.mongo.model.MongoServer;
+import com.gg.plugins.mongo.model.MongoTreeNode;
+import com.gg.plugins.mongo.model.MongoTreeNodeEnum;
 import com.gg.plugins.mongo.view.ConfigurationDialog;
 import com.gg.plugins.mongo.view.MongoExplorerPanel;
 import com.intellij.icons.AllIcons;
@@ -15,6 +18,7 @@ import com.intellij.openapi.project.DumbAware;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.Objects;
 
 public class EditServerAction extends AnAction implements DumbAware {
 	private final MongoExplorerPanel mongoExplorerPanel;
@@ -25,28 +29,36 @@ public class EditServerAction extends AnAction implements DumbAware {
 		this.mongoExplorerPanel = mongoExplorerPanel;
 
 		registerCustomShortcutSet(KeyEvent.VK_E,
-				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(),
+				Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx(),
 				mongoExplorerPanel);
 	}
 
 	@Override
 	public void update(AnActionEvent event) {
-		event.getPresentation().setVisible(mongoExplorerPanel.getSelectedServer() != null);
+		event.getPresentation()
+		     .setVisible(mongoExplorerPanel.getSelectedNode() != null &&
+		                 mongoExplorerPanel.getSelectedNode().getType() == MongoTreeNodeEnum.MongoServer);
 	}
 
 	@Override
 	public void actionPerformed(AnActionEvent event) {
-		MongoServer mongoServer = mongoExplorerPanel.getSelectedServer();
-		ServerConfiguration configuration = mongoServer.getConfiguration();
+		MongoTreeNode selectedNode = mongoExplorerPanel.getSelectedNode();
+		MongoServer mongoServer = (MongoServer) selectedNode.getUserObject();
+		ServerConfiguration serverConfiguration = mongoExplorerPanel.getServerConfiguration(selectedNode);
 
-		ConfigurationDialog dialog = new ConfigurationDialog(event.getProject(), mongoExplorerPanel, configuration);
+		ConfigurationDialog dialog =
+				new ConfigurationDialog(event.getProject(), mongoExplorerPanel, serverConfiguration);
 		dialog.setTitle("Edit a Mongo Server");
 		dialog.show();
 		if (!dialog.isOK()) {
 			return;
 		}
+
+		MongoConfiguration mongoConfiguration =
+				MongoConfiguration.getInstance(Objects.requireNonNull(event.getProject()));
+		mongoConfiguration.updateServerConfiguration(serverConfiguration);
 		if (mongoServer.isConnected()) {
-			mongoExplorerPanel.openServer(mongoServer);
+			mongoExplorerPanel.openServer(selectedNode);
 		}
 	}
 }

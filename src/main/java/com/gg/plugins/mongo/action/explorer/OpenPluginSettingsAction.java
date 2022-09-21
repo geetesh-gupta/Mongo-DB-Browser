@@ -13,6 +13,7 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 public class OpenPluginSettingsAction extends AnAction implements DumbAware {
 
@@ -21,7 +22,7 @@ public class OpenPluginSettingsAction extends AnAction implements DumbAware {
 	}
 
 	@Override
-	public void actionPerformed(AnActionEvent event) {
+	public void actionPerformed(@NotNull AnActionEvent event) {
 		showSettingsFor(getProject(event));
 	}
 

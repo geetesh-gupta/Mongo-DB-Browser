@@ -4,15 +4,19 @@
 
 package com.gg.plugins.mongo.action.explorer;
 
+import com.gg.plugins.mongo.config.MongoConfiguration;
 import com.gg.plugins.mongo.model.MongoTreeNode;
+import com.gg.plugins.mongo.model.MongoTreeNodeEnum;
 import com.gg.plugins.mongo.view.MongoExplorerPanel;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.util.SystemInfo;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
+import java.util.Objects;
 
 public class DeleteAction extends AnAction implements DumbAware {
 	private final MongoExplorerPanel mongoExplorerPanel;
@@ -35,11 +39,16 @@ public class DeleteAction extends AnAction implements DumbAware {
 	}
 
 	@Override
-	public void actionPerformed(AnActionEvent event) {
+	public void actionPerformed(@NotNull AnActionEvent event) {
 		MongoTreeNode selectedNode = mongoExplorerPanel.getSelectedNode();
-		deleteItem(selectedNode.getType().type,
-				selectedNode.getUserObject().toString(),
-				() -> mongoExplorerPanel.removeNode(selectedNode));
+		deleteItem(selectedNode.getType().type, selectedNode.getUserObject().toString(), () -> {
+			if (selectedNode.getType() == MongoTreeNodeEnum.MongoServer) {
+				MongoConfiguration mongoConfiguration =
+						MongoConfiguration.getInstance(Objects.requireNonNull(event.getProject()));
+				mongoConfiguration.removeServerConfiguration(mongoExplorerPanel.getServerConfiguration(selectedNode));
+			}
+			mongoExplorerPanel.removeNode(selectedNode);
+		});
 	}
 
 	private void deleteItem(String itemTypeLabel, String itemLabel, Runnable deleteOperation) {

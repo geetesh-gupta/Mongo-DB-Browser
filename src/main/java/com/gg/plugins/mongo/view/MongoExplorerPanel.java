@@ -44,7 +44,7 @@ import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.net.URL;
-import java.util.List;
+import java.util.Set;
 
 import static com.gg.plugins.mongo.utils.GuiUtils.showNotification;
 
@@ -155,14 +155,14 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		doubleClickEventHandler();
 	}
 
-	private List<ServerConfiguration> getServerConfigurations() {
+	private Set<ServerConfiguration> getServerConfigurations() {
 		return MongoConfiguration.getInstance(project).getServerConfigurations();
 	}
 
 	private void loadAllServerConfigurations() {
 		this.mongoService.cleanUpServers();
 
-		List<ServerConfiguration> serverConfigurations = getServerConfigurations();
+		Set<ServerConfiguration> serverConfigurations = getServerConfigurations();
 		for (ServerConfiguration serverConfiguration : serverConfigurations) {
 			addConfiguration(serverConfiguration);
 		}
@@ -219,9 +219,9 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 				Object userObject = node.getUserObject();
 
 				if (userObject instanceof MongoServer && node.getChildren().isEmpty()) {
-					openServer((MongoServer) userObject);
+					openServer(node);
 				} else if (userObject instanceof MongoDatabase && node.getChildren().isEmpty()) {
-					refreshNodeChildren(node);
+					loadDatabase(node);
 				} else if (userObject instanceof MongoCollection) {
 					loadSelectedCollectionValues((MongoCollection) userObject);
 				}
@@ -239,7 +239,9 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		return (MongoTreeNode) mongoTree.getLastSelectedPathComponent();
 	}
 
-	public void openServer(final MongoServer mongoServer) {
+	public void openServer(final MongoTreeNode serverNode) {
+		assert serverNode.getType() == MongoTreeNodeEnum.MongoServer;
+		MongoServer mongoServer = (MongoServer) serverNode.getUserObject();
 		ProgressManager.getInstance().run(new Task.Backgroundable(project, "Connecting to " + mongoServer.getLabel()) {
 
 			@Override
@@ -247,13 +249,17 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 				mongoTree.setPaintBusy(true);
 				ApplicationManager.getApplication().invokeLater(() -> {
 					try {
-						List<MongoDatabase> mongoDatabases =
+						Set<MongoDatabase> mongoDatabases =
 								mongoService.loadDatabases(mongoServer, mongoServer.getConfiguration());
 						if (mongoDatabases.isEmpty()) {
 							return;
 						}
-						mongoServer.setDatabases(mongoDatabases);
-						refreshNodeChildren(mongoTreeBuilder.getNodeFromUserObject(mongoServer));
+						MongoServer newMongoServer = new MongoServer(getServerConfiguration(serverNode));
+						newMongoServer.setDatabases(mongoDatabases);
+
+						MongoTreeNode newMongoServerNode = new MongoTreeNode(newMongoServer);
+						refreshNodeChildren(newMongoServerNode);
+						mongoTreeBuilder.replace(serverNode, newMongoServerNode);
 					} catch (ConfigurationException confEx) {
 						mongoServer.setStatus(MongoServer.Status.ERROR);
 
@@ -273,20 +279,15 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		});
 	}
 
-	private void refreshNodeChildren(MongoTreeNode node) {
-		if (node != null) {
-			switch (node.getType()) {
-				case ROOT: {
-				}
-				case MongoServer: {
-					mongoTreeBuilder.refreshNodeChildren(node, false);
-					break;
-				}
-				case MongoDatabase: {
-					mongoTreeBuilder.refreshNodeChildren(node, true);
-				}
-			}
-		}
+	public void loadDatabase(MongoTreeNode dbNode) {
+		assert dbNode.getType() == MongoTreeNodeEnum.MongoDatabase;
+		MongoTreeNode serverNode = dbNode.getParent();
+		ServerConfiguration configuration = getServerConfiguration(serverNode);
+		MongoDatabase mongoDatabase = (MongoDatabase) dbNode.getUserObject();
+		MongoDatabase mongoDatabaseUpdated = mongoService.loadDatabase(mongoDatabase, configuration);
+		MongoTreeNode newDbNode = new MongoTreeNode(mongoDatabaseUpdated);
+		refreshNodeChildren(newDbNode);
+		mongoTreeBuilder.replace(dbNode, newDbNode);
 	}
 
 	public void loadSelectedCollectionValues(MongoCollection mongoCollection) {
@@ -301,16 +302,48 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		MongoFileSystem.getInstance().openEditor(new MongoObjectFile(project, configuration, navigation));
 	}
 
-	public void removeNode(MongoTreeNode mongoTreeNode) {
-		mongoTreeBuilder.getTreeModel().removeNodeFromParent(mongoTreeNode);
+	public ServerConfiguration getServerConfiguration(MongoTreeNode treeNode) {
+		return mongoTreeBuilder.getServerConfiguration(treeNode);
 	}
 
-	public MongoServer getSelectedServer() {
-		MongoTreeNode selectedNode = getSelectedNode();
-		if (selectedNode.getUserObject() instanceof MongoServer) {
-			return (MongoServer) selectedNode.getUserObject();
+	private void refreshNodeChildren(MongoTreeNode node) {
+		if (node != null) {
+			switch (node.getType()) {
+				case ROOT: {
+				}
+				case MongoServer: {
+					mongoTreeBuilder.refreshNodeChildren(node, false);
+					break;
+				}
+				case MongoDatabase: {
+					mongoTreeBuilder.refreshNodeChildren(node, false);
+				}
+			}
 		}
-		return null;
+	}
+
+	public void removeNode(MongoTreeNode mongoTreeNode) {
+		ServerConfiguration serverConfiguration = getServerConfiguration(mongoTreeNode);
+		Object userObject = mongoTreeNode.getUserObject();
+		switch (mongoTreeNode.getType()) {
+			case MongoServer: {
+				mongoTreeBuilder.removeConfiguration((MongoServer) userObject);
+				break;
+			}
+			case MongoDatabase: {
+				mongoService.removeDatabase(serverConfiguration, (MongoDatabase) userObject);
+				break;
+			}
+			case MongoCollection: {
+				mongoService.removeCollection(serverConfiguration, (MongoCollection) userObject);
+				break;
+			}
+		}
+
+		mongoTreeBuilder.getTreeModel().removeNodeFromParent(mongoTreeNode);
+
+		refreshNodeChildren(mongoTreeNode.getParent());
+		notifier.notifyInfo(mongoTreeNode.getType() + " " + mongoTreeNode + " removed");
 	}
 
 	private void expandAll() {

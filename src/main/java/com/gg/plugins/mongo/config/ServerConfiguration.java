@@ -15,7 +15,7 @@ import java.util.Objects;
 
 import static java.util.Collections.singletonList;
 
-public class ServerConfiguration implements Cloneable {
+public class ServerConfiguration implements Cloneable, Comparable<ServerConfiguration> {
 
 	public static final int DEFAULT_ROW_LIMIT = 10;
 
@@ -61,14 +61,6 @@ public class ServerConfiguration implements Cloneable {
 	public static HostAndPort extractHostAndPort(@NotNull String serverUrl) {
 		String[] hostAndPort = StringUtils.split(serverUrl, ":");
 		return new HostAndPort(hostAndPort[0], Integer.parseInt(hostAndPort[1]));
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
 	}
 
 	public List<String> getServerUrls() {
@@ -227,6 +219,19 @@ public class ServerConfiguration implements Cloneable {
 		} catch (CloneNotSupportedException e) {
 			return null;
 		}
+	}
+
+	@Override
+	public int compareTo(@NotNull ServerConfiguration o) {
+		return getLabel().compareTo(o.getLabel());
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
 	}
 
 	public static class HostAndPort {

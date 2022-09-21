@@ -18,9 +18,7 @@ import com.mongodb.client.model.FindOneAndReplaceOptions;
 import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class MongoService {
 
@@ -131,9 +129,9 @@ public class MongoService {
 		return mongoServers;
 	}
 
-	public List<MongoDatabase> loadDatabases(MongoServer mongoServer, ServerConfiguration configuration) {
-		final List<MongoDatabase> mongoDatabases = new LinkedList<>();
-		TaskWithReturnedObject<List<MongoDatabase>> perform = mongoClient -> {
+	public Set<MongoDatabase> loadDatabases(MongoServer mongoServer, ServerConfiguration configuration) {
+		final Set<MongoDatabase> mongoDatabases = new TreeSet<>();
+		TaskWithReturnedObject<Set<MongoDatabase>> perform = mongoClient -> {
 			String userDatabase = configuration.getUserDatabase();
 
 			if (StringUtils.isNotEmpty(userDatabase)) {
@@ -179,6 +177,16 @@ public class MongoService {
 		} catch (MongoException mongoEx) {
 			throw new ConfigurationException(mongoEx);
 		}
+	}
+
+	public MongoDatabase loadDatabase(MongoDatabase mongoDatabase, ServerConfiguration configuration) {
+		TaskWithReturnedObject<MongoDatabase> perform = mongoClient -> {
+			com.mongodb.client.MongoDatabase database = mongoClient.getDatabase(mongoDatabase.getName());
+			MongoDatabase mongoDatabaseNew = new MongoDatabase(database.getName(), mongoDatabase.getParentServer());
+			return createMongoDatabaseAndItsCollections(mongoDatabaseNew, database);
+		};
+
+		return executeTask(configuration, perform);
 	}
 
 	public MongoCollectionResult findMongoDocuments(ServerConfiguration configuration,

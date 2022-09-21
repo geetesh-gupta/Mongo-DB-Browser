@@ -4,6 +4,9 @@
 
 package com.gg.plugins.mongo.action.explorer;
 
+import com.gg.plugins.mongo.model.MongoCollection;
+import com.gg.plugins.mongo.model.MongoTreeNode;
+import com.gg.plugins.mongo.model.MongoTreeNodeEnum;
 import com.gg.plugins.mongo.view.MongoExplorerPanel;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -26,11 +29,14 @@ public class ViewCollectionValuesAction extends AnAction implements DumbAware {
 
 	@Override
 	public void update(AnActionEvent event) {
-		//		event.getPresentation().setVisible(mongoExplorerPanel.getSelectedCollection() != null);
+		MongoTreeNode selectedNode = mongoExplorerPanel.getSelectedNode();
+		event.getPresentation()
+		     .setVisible(selectedNode != null && selectedNode.getType() == MongoTreeNodeEnum.MongoCollection);
 	}
 
 	@Override
 	public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
-		//		mongoExplorerPanel.loadSelectedCollectionValues(mongoExplorerPanel.getSelectedCollection());
+		mongoExplorerPanel.loadSelectedCollectionValues((MongoCollection) mongoExplorerPanel.getSelectedNode()
+		                                                                                    .getUserObject());
 	}
 }

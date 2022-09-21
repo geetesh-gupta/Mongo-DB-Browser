@@ -47,7 +47,14 @@ public class MongoTreeBuilder implements Disposable {
 
 	public void add(MongoTreeNode childNode, MongoTreeNode parentNode) {
 		if (treeModel.getIndexOfChild(parentNode, childNode) == -1)
-			treeModel.insertNodeInto(childNode, parentNode, treeModel.getChildCount(childNode));
+			treeModel.insertNodeInto(childNode, parentNode, treeModel.getChildCount(parentNode));
+	}
+
+	public void replace(MongoTreeNode oldNode, MongoTreeNode newNode) {
+		MongoTreeNode parentNode = oldNode.getParent();
+		int indexOfChild = treeModel.getIndexOfChild(parentNode, oldNode);
+		treeModel.removeNodeFromParent(oldNode);
+		treeModel.insertNodeInto(newNode, parentNode, indexOfChild);
 	}
 
 	public void removeAllChildren(MongoTreeNode parentNode) {
@@ -98,7 +105,9 @@ public class MongoTreeBuilder implements Disposable {
 		}
 		List<MongoTreeNode> childNodes = parentNode.getChildren()
 		                                           .stream()
-		                                           .filter(childNode -> childNode.getUserObject().equals(userObject))
+		                                           .filter(childNode -> childNode.getUserObject()
+		                                                                         .toString()
+		                                                                         .equals(userObject.toString()))
 		                                           .collect(Collectors.toList());
 		if (childNodes.size() == 1)
 			return childNodes.get(0);
@@ -111,6 +120,10 @@ public class MongoTreeBuilder implements Disposable {
 
 	public void removeConfiguration(MongoServer mongoServer) {
 		serverConfigurations.remove(mongoServer);
+	}
+
+	public ServerConfiguration getServerConfiguration(MongoTreeNode node) {
+		return MongoTreeNode.getServerConfiguration(node.getUserObject());
 	}
 
 	@Override

@@ -11,13 +11,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 @State(name = "MongoConfiguration", storages = {@Storage("$PROJECT_CONFIG_DIR$/mongoSettings.xml")})
 public class MongoConfiguration implements PersistentStateComponent<MongoConfiguration> {
-
-	private List<ServerConfiguration> serverConfigurations = new LinkedList<>();
+	private Set<ServerConfiguration> serverConfigurations = new TreeSet<>();
 
 	private String shellPath;
 
@@ -33,11 +32,11 @@ public class MongoConfiguration implements PersistentStateComponent<MongoConfigu
 		XmlSerializerUtil.copyBean(mongoConfiguration, this);
 	}
 
-	public List<ServerConfiguration> getServerConfigurations() {
+	public Set<ServerConfiguration> getServerConfigurations() {
 		return serverConfigurations;
 	}
 
-	public void setServerConfigurations(List<ServerConfiguration> serverConfigurations) {
+	public void setServerConfigurations(Set<ServerConfiguration> serverConfigurations) {
 		this.serverConfigurations = serverConfigurations;
 	}
 
@@ -53,29 +52,13 @@ public class MongoConfiguration implements PersistentStateComponent<MongoConfigu
 		serverConfigurations.add(serverConfiguration);
 	}
 
-	public void updateServerConfiguration(ServerConfiguration previousConfiguration,
-			ServerConfiguration updatedConfiguration) {
-		if (previousConfiguration.equals(updatedConfiguration)) {
-			return;
-		}
-
-		int index = getServerConfigurationIndex(previousConfiguration);
-		serverConfigurations.set(index, updatedConfiguration);
-	}
-
-	private int getServerConfigurationIndex(ServerConfiguration configuration) {
-		int index = 0;
-		for (ServerConfiguration serverConfiguration : serverConfigurations) {
-			if (serverConfiguration.equals(configuration)) {
-				return index;
-			}
-			index++;
-		}
-
-		throw new IllegalArgumentException("Unable to find the configuration to updated");
+	public void updateServerConfiguration(ServerConfiguration updatedConfiguration) {
+		serverConfigurations.remove(updatedConfiguration);
+		serverConfigurations.add(updatedConfiguration);
 	}
 
 	public void removeServerConfiguration(ServerConfiguration configuration) {
 		serverConfigurations.remove(configuration);
 	}
+
 }
