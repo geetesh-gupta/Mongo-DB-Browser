@@ -53,6 +53,7 @@ import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicTreeUI;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
@@ -145,10 +146,23 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 			}
 		};
 
+		tree.setUI(new BasicTreeUI() {
+			@Override
+			protected boolean shouldPaintExpandControl(final TreePath path,
+					final int row,
+					final boolean isExpanded,
+					final boolean hasBeenExpanded,
+					final boolean isLeaf) {
+				Object node = path.getLastPathComponent();
+				return !mongoTreeModel.getChildren(node).isEmpty();
+			}
+		});
+
 		tree.getEmptyText().clear();
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.setName("mongoTree");
 		tree.setRootVisible(false);
+
 		tree.setCellRenderer(new ColoredTreeCellRenderer() {
 			@Override
 			public void customizeCellRenderer(@NotNull JTree tree,

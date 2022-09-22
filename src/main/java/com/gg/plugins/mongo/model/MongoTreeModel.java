@@ -45,7 +45,10 @@ public class MongoTreeModel implements TreeModel {
 
 	@Override
 	public Object getChild(Object parent, int index) {
-		return getChildren(parent).get(index);
+		List<Object> children = getChildren(parent);
+		if (children.isEmpty())
+			return null;
+		return children.get(index);
 	}
 
 	@Override
@@ -77,7 +80,7 @@ public class MongoTreeModel implements TreeModel {
 		listenerList.remove(l);
 	}
 
-	public @NotNull List<?> getChildren(Object parent) {
+	public @NotNull List<Object> getChildren(Object parent) {
 		if (parent.equals(rootNode)) {
 			return new ArrayList<>(mongoServerMap.keySet());
 		} else if (parent instanceof MongoServer) {
