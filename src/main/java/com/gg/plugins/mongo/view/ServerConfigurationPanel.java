@@ -117,7 +117,7 @@ public class ServerConfigurationPanel extends JPanel {
 		passwordField.setName("passwordField");
 		authenticationDatabaseField.setName("authenticationDatabaseField");
 		authenticationDatabaseField.setToolTipText(
-				"admin by default, otherwise set the user database here if restriced access");
+				"admin by default, otherwise set the user database here if restricted access");
 		scramSHA1AuthRadioButton.setName("scramSHA1AuthField");
 		plainAuthMethodRadioButton.setName("defaultAuthMethod");
 
@@ -477,8 +477,8 @@ public class ServerConfigurationPanel extends JPanel {
 			sshProxyUserField.setText(sshTunnelingConfiguration.getProxyUser());
 		}
 
-		AuthenticationMechanism authentificationMethod = configuration.getAuthenticationMechanism();
-		if (AuthenticationMechanism.SCRAM_SHA_1.equals(authentificationMethod)) {
+		AuthenticationMechanism authenticationMethod = configuration.getAuthenticationMechanism();
+		if (AuthenticationMechanism.SCRAM_SHA_1.equals(authenticationMethod)) {
 			scramSHA1AuthRadioButton.setSelected(true);
 		} else {
 			plainAuthMethodRadioButton.setSelected(true);

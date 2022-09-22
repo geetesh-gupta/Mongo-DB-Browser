@@ -30,7 +30,7 @@ public class MongoUtils {
 			new DocumentCodec(CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry()),
 					new BsonTypeClassMap());
 
-	public static JsonWriterSettings WRITER_SETTINGS = JsonWriterSettings.builder().indent(true).build();
+	public static final JsonWriterSettings WRITER_SETTINGS = JsonWriterSettings.builder().indent(true).build();
 
 	private MongoUtils() {
 	}

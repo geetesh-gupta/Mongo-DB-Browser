@@ -5,11 +5,12 @@
 package com.gg.plugins.mongo.view.console;
 
 import com.intellij.execution.console.LanguageConsoleImpl;
-import com.intellij.openapi.fileTypes.StdFileTypes;
 import com.intellij.openapi.project.Project;
+
+import static com.intellij.openapi.fileTypes.FileTypes.PLAIN_TEXT;
 
 public class MongoConsoleView extends LanguageConsoleImpl {
 	public MongoConsoleView(Project project) {
-		super(project, "Mongo Console", StdFileTypes.PLAIN_TEXT.getLanguage());
+		super(project, "Mongo Console", PLAIN_TEXT.getLanguage());
 	}
 }

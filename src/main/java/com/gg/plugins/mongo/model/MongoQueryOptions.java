@@ -4,10 +4,9 @@
 
 package com.gg.plugins.mongo.model;
 
-import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
-import com.mongodb.util.JSON;
 import org.apache.commons.lang.StringUtils;
+import org.bson.BsonArray;
 import org.bson.Document;
 
 import java.util.LinkedList;
@@ -41,9 +40,9 @@ public class MongoQueryOptions {
 
 	public void setOperations(String aggregateQuery) {
 		operations.clear();
-		BasicDBList operations = (BasicDBList) JSON.parse(aggregateQuery);
-		for (Object operation1 : operations) {
-			BasicDBObject operation = (BasicDBObject) operation1;
+		BsonArray parse = BsonArray.parse(aggregateQuery);
+		for (Object operation1 : parse) {
+			BasicDBObject operation = BasicDBObject.parse(operation1.toString());
 			this.operations.add(operation);
 		}
 	}

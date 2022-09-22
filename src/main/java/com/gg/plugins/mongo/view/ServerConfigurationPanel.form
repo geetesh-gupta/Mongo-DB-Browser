@@ -131,7 +131,7 @@
                 </constraints>
                 <properties>
                   <font style="2"/>
-                  <text value="format: host:port. If replicat set: host:port1,host:port2,..."/>
+                  <text value="format: host:port. If replica set: host:port1,host:port2,..."/>
                 </properties>
               </component>
               <component id="85f3c" class="javax.swing.JCheckBox" binding="sslConnectionField">

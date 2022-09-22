@@ -19,10 +19,11 @@ import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 public class MongoService {
 
-	public static final String DEAFULT_AUTHENTICATION_DATABASE = "admin";
+	public static final String DEFAULT_AUTHENTICATION_DATABASE = "admin";
 
 	private static final String DEFAULT_TUNNEL_LOCAL_HOST = "localhost";
 
@@ -109,12 +110,12 @@ public class MongoService {
 			}
 		}
 
-		throw new IllegalArgumentException("Unsupported authentication macanism: " + authenticationMechanism);
+		throw new IllegalArgumentException("Unsupported authentication mechanism: " + authenticationMechanism);
 	}
 
 	private static String getAuthenticationDatabase(ServerConfiguration configuration) {
 		String authenticationDatabase = configuration.getAuthenticationDatabase();
-		return StringUtils.isEmpty(authenticationDatabase) ? DEAFULT_AUTHENTICATION_DATABASE : authenticationDatabase;
+		return StringUtils.isEmpty(authenticationDatabase) ? DEFAULT_AUTHENTICATION_DATABASE : authenticationDatabase;
 	}
 
 	public void cleanUpServers() {
@@ -238,7 +239,7 @@ public class MongoService {
 			cursor.limit(resultLimit);
 		}
 
-		cursor.forEach((Block<Document>) mongoCollectionResult::add);
+		cursor.forEach((Consumer<? super Document>) mongoCollectionResult::add);
 
 		return mongoCollectionResult;
 	}

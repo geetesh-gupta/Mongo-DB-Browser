@@ -4,16 +4,16 @@
 
 package com.gg.plugins.mongo.model;
 
-import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class Pagination {
 
-	@NotNull private final Collection<Runnable> mySetFilterListeners = ContainerUtil.newArrayList();
+	@NotNull private final Collection<Runnable> mySetFilterListeners = new ArrayList<>();
 
 	private NbPerPage nbPerPage;
 

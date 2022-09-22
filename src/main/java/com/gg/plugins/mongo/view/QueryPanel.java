@@ -4,7 +4,10 @@
 
 package com.gg.plugins.mongo.view;
 
+import com.gg.plugins.mongo.action.result.OperatorCompletionAction;
 import com.gg.plugins.mongo.model.MongoQueryOptions;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.intellij.lang.Language;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
@@ -28,8 +31,6 @@ import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.util.Alarm;
 import com.intellij.util.ui.UIUtil;
-import com.mongodb.util.JSON;
-import com.mongodb.util.JSONParseException;
 import org.apache.commons.lang.StringUtils;
 
 import javax.swing.*;
@@ -43,8 +44,6 @@ public class QueryPanel extends JPanel implements Disposable {
 
 	private static final String AGGREGATION_PANEL = "AggregationPanel";
 
-	private final Alarm myUpdateAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD);
-
 	private final Project project;
 
 	private final CardLayout queryCardLayout;
@@ -52,6 +51,8 @@ public class QueryPanel extends JPanel implements Disposable {
 	private final OperatorPanel filterPanel;
 
 	private final OperatorPanel aggregationPanel;
+
+	private Alarm myUpdateAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD);
 
 	private JPanel mainPanel;
 
@@ -153,7 +154,7 @@ public class QueryPanel extends JPanel implements Disposable {
 
 		private final Editor editor;
 
-		//		private final OperatorCompletionAction operatorCompletionAction;
+		private final OperatorCompletionAction operatorCompletionAction;
 
 		private AggregatorPanel() {
 			this.editor = createEditor();
@@ -165,9 +166,10 @@ public class QueryPanel extends JPanel implements Disposable {
 			add(headPanel, BorderLayout.NORTH);
 			add(this.editor.getComponent(), BorderLayout.CENTER);
 
-			//			this.operatorCompletionAction = new OperatorCompletionAction(project, editor);
+			this.operatorCompletionAction = new OperatorCompletionAction(project, editor);
 
-			//            myUpdateAlarm.setActivationComponent(this.editor.getComponent());
+			myUpdateAlarm = new Alarm(this.editor.getComponent(), this);
+			//			myUpdateAlarm.setActivationComponent(this.editor.getComponent());
 		}
 
 		@Override
@@ -182,8 +184,9 @@ public class QueryPanel extends JPanel implements Disposable {
 				if (StringUtils.isEmpty(query)) {
 					return;
 				}
-				JSON.parse(query);
-			} catch (JSONParseException | NumberFormatException ex) {
+				JsonParser.parseString(query);
+				//				JSON.parse(query);
+			} catch (JsonParseException | NumberFormatException ex) {
 				notifyOnErrorForOperator(editor.getComponent(), ex);
 			}
 		}
@@ -197,7 +200,7 @@ public class QueryPanel extends JPanel implements Disposable {
 			MongoQueryOptions mongoQueryOptions = new MongoQueryOptions();
 			try {
 				mongoQueryOptions.setOperations(getQuery());
-			} catch (JSONParseException ex) {
+			} catch (JsonParseException ex) {
 				notifyOnErrorForOperator(editor.getComponent(), ex);
 			}
 
@@ -210,7 +213,7 @@ public class QueryPanel extends JPanel implements Disposable {
 
 		@Override
 		public void dispose() {
-			//			operatorCompletionAction.dispose();
+			operatorCompletionAction.dispose();
 			EditorFactory.getInstance().releaseEditor(this.editor);
 		}
 	}
@@ -219,7 +222,7 @@ public class QueryPanel extends JPanel implements Disposable {
 
 		private final Editor selectEditor;
 
-		//		private final OperatorCompletionAction operatorCompletionAction;
+		private final OperatorCompletionAction operatorCompletionAction;
 
 		private final Editor projectionEditor;
 
@@ -229,7 +232,7 @@ public class QueryPanel extends JPanel implements Disposable {
 			setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
 			this.selectEditor = createEditor();
-			//			this.operatorCompletionAction = new OperatorCompletionAction(project, selectEditor);
+			this.operatorCompletionAction = new OperatorCompletionAction(project, selectEditor);
 			add(createSubOperatorPanel("Filter", this.selectEditor));
 
 			this.projectionEditor = createEditor();
@@ -248,7 +251,8 @@ public class QueryPanel extends JPanel implements Disposable {
 			selectPanel.add(headPanel, BorderLayout.NORTH);
 			selectPanel.add(subOperatorEditor.getComponent(), BorderLayout.CENTER);
 
-			//            myUpdateAlarm.setActivationComponent(subOperatorEditor.getComponent());
+			myUpdateAlarm = new Alarm(subOperatorEditor.getComponent(), this);
+			//			myUpdateAlarm.setActivationComponent(subOperatorEditor.getComponent());
 
 			return selectPanel;
 		}
@@ -272,7 +276,7 @@ public class QueryPanel extends JPanel implements Disposable {
 				mongoQueryOptions.setFilter(getQueryFrom(selectEditor));
 				mongoQueryOptions.setProjection(getQueryFrom(projectionEditor));
 				mongoQueryOptions.setSort(getQueryFrom(sortEditor));
-			} catch (JSONParseException ex) {
+			} catch (JsonParseException ex) {
 				notifyOnErrorForOperator(selectEditor.getComponent(), ex);
 			}
 
@@ -291,8 +295,9 @@ public class QueryPanel extends JPanel implements Disposable {
 				if (StringUtils.isEmpty(query)) {
 					return;
 				}
-				JSON.parse(query);
-			} catch (JSONParseException | NumberFormatException ex) {
+				JsonParser.parseString(query);
+				//				JSON.parse(query);
+			} catch (JsonParseException | NumberFormatException ex) {
 				notifyOnErrorForOperator(editor.getComponent(), ex);
 			}
 		}
@@ -303,7 +308,7 @@ public class QueryPanel extends JPanel implements Disposable {
 
 		@Override
 		public void dispose() {
-			//			operatorCompletionAction.dispose();
+			operatorCompletionAction.dispose();
 			EditorFactory.getInstance().releaseEditor(this.selectEditor);
 			EditorFactory.getInstance().releaseEditor(this.projectionEditor);
 			EditorFactory.getInstance().releaseEditor(this.sortEditor);
@@ -320,7 +325,7 @@ public class QueryPanel extends JPanel implements Disposable {
 
 		void notifyOnErrorForOperator(final JComponent component, Exception ex) {
 			String message;
-			if (ex instanceof JSONParseException) {
+			if (ex instanceof JsonParseException) {
 				message = StringUtils.removeStart(ex.getMessage(), "\n");
 			} else {
 				message = String.format("%s: %s", ex.getClass().getSimpleName(), ex.getMessage());

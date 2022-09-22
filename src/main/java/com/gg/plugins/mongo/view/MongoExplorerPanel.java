@@ -81,9 +81,6 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		treePanel.setLayout(new BorderLayout());
 
 		mongoTree = createTree();
-		//		mongoTreeModel = new MongoTreeBuilder();
-		//		mongoTree.setModel(mongoTreeModel.getTreeModel());
-
 		mongoTreeModel = new MongoTreeModel();
 		mongoTree.setModel(mongoTreeModel);
 
@@ -317,47 +314,6 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 
 	}
 
-	//
-	//	private void refreshNodeChildren(MongoTreeNode node) {
-	//		if (node != null) {
-	//			switch (node.getType()) {
-	//				case ROOT: {
-	//				}
-	//				case MongoServer: {
-	//					mongoTreeModel.refreshNodeChildren(node, false);
-	//					break;
-	//				}
-	//				case MongoDatabase: {
-	//					mongoTreeModel.refreshNodeChildren(node, false);
-	//				}
-	//			}
-	//		}
-	//	}
-	//
-	//	public void removeNode(MongoTreeNode mongoTreeNode) {
-	//		ServerConfiguration serverConfiguration = getServerConfiguration(mongoTreeNode);
-	//		Object userObject = mongoTreeNode.getUserObject();
-	//		switch (mongoTreeNode.getType()) {
-	//			case MongoServer: {
-	//				mongoTreeModel.removeConfiguration((MongoServer) userObject);
-	//				break;
-	//			}
-	//			case MongoDatabase: {
-	//				mongoService.removeDatabase(serverConfiguration, (MongoDatabase) userObject);
-	//				break;
-	//			}
-	//			case MongoCollection: {
-	//				mongoService.removeCollection(serverConfiguration, (MongoCollection) userObject);
-	//				break;
-	//			}
-	//		}
-	//
-	//		mongoTreeModel.getTreeModel().removeNodeFromParent(mongoTreeNode);
-	//
-	//		refreshNodeChildren(mongoTreeNode.getParent());
-	//		notifier.notifyInfo(mongoTreeNode.getType() + " " + mongoTreeNode + " removed");
-	//	}
-	//
 	private void expandAll() {
 		if (mongoTreeModel.getChildCount(mongoTreeModel.getRoot()) > 0)
 			mongoTreeModel.getChildren(mongoTreeModel.getRoot())
@@ -378,11 +334,24 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		return rootPanel;
 	}
 
-	//	public MongoService getMongoService() {
-	//		return mongoService;
-	//	}
-
 	private class Actions {
+		public final RefreshServerAction refreshServerAction = new RefreshServerAction(MongoExplorerPanel.this);
+
+		public final AddServerAction addServerAction = new AddServerAction(MongoExplorerPanel.this);
+
+		public final DuplicateServerAction duplicateServerAction = new DuplicateServerAction(MongoExplorerPanel.this);
+
+		public final EditServerAction editServerAction = new EditServerAction(MongoExplorerPanel.this);
+
+		public final DeleteAction deleteAction = new DeleteAction(MongoExplorerPanel.this);
+
+		public final ViewCollectionValuesAction viewCollectionValuesAction =
+				new ViewCollectionValuesAction(MongoExplorerPanel.this);
+
+		public final OpenPluginSettingsAction openPluginSettingsAction = new OpenPluginSettingsAction();
+
+		public final MongoConsoleAction mongoConsoleAction = new MongoConsoleAction(MongoExplorerPanel.this);
+
 		final TreeExpander treeExpander = new TreeExpander() {
 			@Override
 			public void expandAll() {
@@ -405,24 +374,7 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 			}
 		};
 
-		public RefreshServerAction refreshServerAction = new RefreshServerAction(MongoExplorerPanel.this);
-
-		public AddServerAction addServerAction = new AddServerAction(MongoExplorerPanel.this);
-
-		public DuplicateServerAction duplicateServerAction = new DuplicateServerAction(MongoExplorerPanel.this);
-
-		public EditServerAction editServerAction = new EditServerAction(MongoExplorerPanel.this);
-
-		public DeleteAction deleteAction = new DeleteAction(MongoExplorerPanel.this);
-
-		public ViewCollectionValuesAction viewCollectionValuesAction =
-				new ViewCollectionValuesAction(MongoExplorerPanel.this);
-
-		public OpenPluginSettingsAction openPluginSettingsAction = new OpenPluginSettingsAction();
-
-		public MongoConsoleAction mongoConsoleAction = new MongoConsoleAction(MongoExplorerPanel.this);
-
-		CommonActionsManager actionsManager = CommonActionsManager.getInstance();
+		final CommonActionsManager actionsManager = CommonActionsManager.getInstance();
 
 		public final AnAction expandAllAction = actionsManager.createExpandAllAction(treeExpander, rootPanel);
 

@@ -4,6 +4,8 @@
 
 package com.gg.plugins.mongo.view;
 
+import com.gg.plugins.mongo.action.pagination.PaginationAction;
+import com.gg.plugins.mongo.action.result.*;
 import com.gg.plugins.mongo.config.ServerConfiguration;
 import com.gg.plugins.mongo.model.*;
 import com.gg.plugins.mongo.model.navigation.Navigation;
@@ -21,6 +23,7 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.LoadingDecorator;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.openapi.util.Computable;
 import com.intellij.openapi.util.Disposer;
@@ -29,11 +32,14 @@ import com.intellij.ui.PopupHandler;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.panels.NonOpaquePanel;
 import com.intellij.util.ui.UIUtil;
+import com.mongodb.DBRef;
 import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class MongoPanel extends JPanel implements Disposable {
 
@@ -143,7 +149,7 @@ public class MongoPanel extends JPanel implements Disposable {
 								navigation.getCurrentWayPoint().getCollection().getParentDatabase()),
 						_id);
 			}
-		}, notifier);
+		});
 	}
 
 	private void initToolBar() {
@@ -190,19 +196,19 @@ public class MongoPanel extends JPanel implements Disposable {
 	@NotNull
 	private JComponent createResultActionsComponent() {
 		DefaultActionGroup actionResultGroup = new DefaultActionGroup("MongoResultGroup", true);
-		//		actionResultGroup.add(new ExecuteQuery(this));
-		//		actionResultGroup.add(new OpenFindAction(this));
-		//		actionResultGroup.add(new EnableAggregateAction(queryPanel));
+		actionResultGroup.add(new ExecuteQuery(this));
+		actionResultGroup.add(new OpenFindAction(this));
+		actionResultGroup.add(new EnableAggregateAction(queryPanel));
 		actionResultGroup.addSeparator();
-		//		actionResultGroup.add(new AddMongoDocumentAction(resultPanel));
-		//		actionResultGroup.add(new EditMongoDocumentAction(resultPanel));
-		//		actionResultGroup.add(new DeleteMongoDocumentAction(resultPanel));
-		//		actionResultGroup.add(new CopyAllAction(resultPanel));
+		actionResultGroup.add(new AddMongoDocumentAction(resultPanel));
+		actionResultGroup.add(new EditMongoDocumentAction(resultPanel));
+		actionResultGroup.add(new DeleteMongoDocumentAction(resultPanel));
+		actionResultGroup.add(new CopyAllAction(resultPanel));
 		actionResultGroup.addSeparator();
-		//		actionResultGroup.add(new NavigateBackwardAction(this));
+		actionResultGroup.add(new NavigateBackwardAction(this));
 
 		addBasicTreeActions(actionResultGroup);
-		//		actionResultGroup.add(new CloseFindEditorAction(this));
+		actionResultGroup.add(new CloseFindEditorAction(this));
 		//TODO Duplicate
 		ActionToolbar actionToolBar =
 				ActionManager.getInstance().createActionToolbar("MongoResultGroupActions", actionResultGroup, true);
@@ -217,10 +223,9 @@ public class MongoPanel extends JPanel implements Disposable {
 	@NotNull
 	private JComponent createPaginationActionsComponent() {
 		DefaultActionGroup actionResultGroup = new DefaultActionGroup("MongoPaginationGroup", false);
-		//		actionResultGroup.add(new ChangeNbPerPageActionComponent(() -> new PaginationPopupComponent
-		//		(pagination).initUi()));
-		//		actionResultGroup.add(new PaginationAction.Previous(pagination));
-		//		actionResultGroup.add(new PaginationAction.Next(pagination));
+		actionResultGroup.add(new ChangeNbPerPageActionComponent(() -> new PaginationPopupComponent(pagination).initUi()));
+		actionResultGroup.add(new PaginationAction.Previous(pagination));
+		actionResultGroup.add(new PaginationAction.Next(pagination));
 
 		//TODO Duplicate
 		ActionToolbar actionToolBar =
@@ -237,8 +242,8 @@ public class MongoPanel extends JPanel implements Disposable {
 	@NotNull
 	private JComponent createSelectViewActionsComponent() {
 		DefaultActionGroup viewSelectGroup = new DefaultActionGroup("MongoViewSelectGroup", false);
-		//		viewSelectGroup.add(new ViewAsTreeAction(this));
-		//		viewSelectGroup.add(new ViewAsTableAction(this));
+		viewSelectGroup.add(new ViewAsTreeAction(this));
+		viewSelectGroup.add(new ViewAsTableAction(this));
 
 		//TODO Duplicate
 		ActionToolbar viewToolbar =
@@ -328,8 +333,7 @@ public class MongoPanel extends JPanel implements Disposable {
 					               UIUtil.invokeLaterIfNeeded(() -> {
 						               errorPanel.invalidate();
 						               errorPanel.removeAll();
-						               //						               errorPanel.add(new ErrorPanel(ex),
-						               //						               BorderLayout.CENTER);
+						               errorPanel.add(new ErrorPanel(ex), BorderLayout.CENTER);
 						               errorPanel.validate();
 						               errorPanel.setVisible(true);
 					               });
@@ -346,24 +350,41 @@ public class MongoPanel extends JPanel implements Disposable {
 	}
 
 	private void initActions(JsonTreeTableView resultTreeTableView) {
-		//		resultTreeTableView.addMouseListener(new MouseAdapter() {
-		//			@Override
-		//			public void mouseClicked(MouseEvent mouseEvent) {
-		//				if (mouseEvent.getClickCount() == 2 && resultPanel.isSelectedNodeId()) {
-		//					resultPanel.editSelectedMongoDocument();
-		//				}
-		//			}
-		//		});
+		resultTreeTableView.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent mouseEvent) {
+				if (mouseEvent.getClickCount() == 2 && resultPanel.isSelectedNodeId()) {
+					resultPanel.editSelectedMongoDocument();
+				}
+			}
+		});
 
 		DefaultActionGroup actionPopupGroup = new DefaultActionGroup("MongoResultPopupGroup", true);
 		if (ApplicationManager.getApplication() != null) {
-			//			actionPopupGroup.add(new EditMongoDocumentAction(resultPanel));
-			//			actionPopupGroup.add(new DeleteMongoDocumentAction(resultPanel));
-			//			actionPopupGroup.add(new CopyNodeAction(resultPanel));
-			//			actionPopupGroup.add(new GoToMongoDocumentAction(this));
+			actionPopupGroup.add(new EditMongoDocumentAction(resultPanel));
+			actionPopupGroup.add(new DeleteMongoDocumentAction(resultPanel));
+			actionPopupGroup.add(new CopyNodeAction(resultPanel));
+			actionPopupGroup.add(new GoToMongoDocumentAction(this));
 		}
 
 		PopupHandler.installPopupMenu(resultTreeTableView, actionPopupGroup, "POPUP");
+	}
+
+	public void goToReferencedDocument() {
+		DBRef selectedDBRef = resultPanel.getSelectedDBRef();
+
+		Document referencedDocument = resultPanel.getReferencedDocument(selectedDBRef);
+		if (referencedDocument == null) {
+			Messages.showErrorDialog(this, "Referenced document was not found");
+			return;
+		}
+
+		navigation.addNewWayPoint(new MongoCollection(selectedDBRef.getCollectionName(),
+						selectedDBRef.getDatabaseName() != null ?
+						new MongoDatabase(selectedDBRef.getDatabaseName(), new MongoServer(configuration)) :
+						navigation.getCurrentWayPoint().getCollection().getParentDatabase()),
+				new MongoQueryOptions().setFilter(new Document("_id", selectedDBRef.getId())));
+		executeQuery(false, navigation.getCurrentWayPoint());
 	}
 
 	//TODO refactor
@@ -424,23 +445,6 @@ public class MongoPanel extends JPanel implements Disposable {
 		return navigation.getWayPoints().size() > 1;
 	}
 
-	public void goToReferencedDocument() {
-		//		DBRef selectedDBRef = resultPanel.getSelectedDBRef();
-		//
-		//		Document referencedDocument = resultPanel.getReferencedDocument(selectedDBRef);
-		//		if (referencedDocument == null) {
-		//			Messages.showErrorDialog(this, "Referenced document was not found");
-		//			return;
-		//		}
-		//
-		//		navigation.addNewWayPoint(new MongoCollection(selectedDBRef.getCollectionName(),
-		//						selectedDBRef.getDatabaseName() != null ?
-		//						new MongoDatabase(selectedDBRef.getDatabaseName(), new MongoServer(configuration)) :
-		//						navigation.getCurrentWayPoint().getCollection().getParentDatabase()),
-		//				new MongoQueryOptions().setFilter(new Document("_id", selectedDBRef.getId())));
-		executeQuery(false, navigation.getCurrentWayPoint());
-	}
-
 	public interface MongoDocumentOperations {
 		Document getMongoDocument(Object _id);
 
@@ -460,7 +464,7 @@ public class MongoPanel extends JPanel implements Disposable {
 		}
 
 		@Override
-		public JComponent createCustomComponent(Presentation presentation, @NotNull String place) {
+		public @NotNull JComponent createCustomComponent(@NotNull Presentation presentation, @NotNull String place) {
 			return myComponentCreator.compute();
 		}
 

@@ -4,7 +4,7 @@
 
 package com.gg.plugins.mongo.utils;
 
-public class StringUtils {
+public class StringUtils extends org.apache.commons.lang.StringUtils {
 
 	private static final String ELLIPSIS = "...";
 

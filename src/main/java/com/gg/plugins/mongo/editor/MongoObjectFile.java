@@ -92,7 +92,6 @@ public class MongoObjectFile extends VirtualFile {
 		throw new UnsupportedOperationException("MongoResultFile is read-only");
 	}
 
-	@NotNull
 	@Override
 	public byte[] contentsToByteArray() {
 		return new byte[0];

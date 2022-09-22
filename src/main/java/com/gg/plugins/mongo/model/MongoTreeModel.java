@@ -17,11 +17,11 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class MongoTreeModel implements TreeModel {
+	protected final List<TreeModelListener> listenerList = new ArrayList<>();
+
 	private final Map<MongoServer, ServerConfiguration> mongoServerMap = new TreeMap<>();
 
 	private final String rootNode = "<root>";
-
-	protected List<TreeModelListener> listenerList = new ArrayList<>();
 
 	public MongoTreeModel() {
 	}
