@@ -96,13 +96,6 @@ public class MongoTreeModel implements TreeModel {
 		mongoServerMap.remove(mongoServer);
 	}
 
-	public Object getChildAtIndex(Object node, int index) {
-		if (index >= 0 && index < getChildCount(node)) {
-			return getChildren(node).get(index);
-		}
-		return null;
-	}
-
 	public MongoServer addConfiguration(ServerConfiguration serverConfiguration) {
 		MongoServer mongoServer = new MongoServer(serverConfiguration);
 		mongoServerMap.put(mongoServer, serverConfiguration);
@@ -116,35 +109,6 @@ public class MongoTreeModel implements TreeModel {
 			listener.treeStructureChanged(e);
 		}
 	}
-
-	//	public TreeModelEvent createTreeModelEvent(Object node, int[] childIndices) {
-	//		if (childIndices == null) {
-	//			childIndices = IntStream.range(0, getChildCount(node)).toArray();
-	//		}
-	//		Object[] newChildren = Arrays.stream(childIndices).mapToObj(i -> getChildAtIndex(node, i)).toArray();
-	//		return new TreeModelEvent(this, getPathToRoot(node), childIndices, newChildren);
-	//	}
-	//
-	//	public void fireTreeNodeChanged(Object node) {
-	//		TreeModelEvent e = new TreeModelEvent(this, getPathToRoot(node));
-	//		for (TreeModelListener listener : listenerList) {
-	//			listener.treeNodesChanged(e);
-	//		}
-	//	}
-	//
-	//	public void fireTreeNodeInserted(Object node, int[] childIndices) {
-	//		TreeModelEvent e = createTreeModelEvent(node, childIndices);
-	//		for (TreeModelListener listener : listenerList) {
-	//			listener.treeNodesInserted(e);
-	//		}
-	//	}
-	//
-	//	public void fireTreeNodeRemoved(Object node, int[] childIndices) {
-	//		TreeModelEvent e = createTreeModelEvent(node, childIndices);
-	//		for (TreeModelListener listener : listenerList) {
-	//			listener.treeNodesRemoved(e);
-	//		}
-	//	}
 
 	public Object[] getPathToRoot(Object aNode) {
 		return getPathToRoot(aNode, 0);

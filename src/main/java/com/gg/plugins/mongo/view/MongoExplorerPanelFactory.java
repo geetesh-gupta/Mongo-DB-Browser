@@ -17,6 +17,7 @@
 
 package com.gg.plugins.mongo.view;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
@@ -27,7 +28,8 @@ import org.jetbrains.annotations.NotNull;
 public class MongoExplorerPanelFactory implements ToolWindowFactory {
 	public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
 		MongoExplorerPanel myToolWindow = new MongoExplorerPanel(project);
-		ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
+
+		ContentFactory contentFactory = ApplicationManager.getApplication().getService(ContentFactory.class);
 		Content content = contentFactory.createContent(myToolWindow.getContent(), "", false);
 		toolWindow.getContentManager().addContent(content);
 	}

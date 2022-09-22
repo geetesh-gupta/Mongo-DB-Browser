@@ -1,1 +1,1 @@
-rootProject.name = "mongo-for-intellij"
+rootProject.name = "Mongo DB Browser"

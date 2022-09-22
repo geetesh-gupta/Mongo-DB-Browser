@@ -35,7 +35,7 @@ public class GuiUtils {
 	private static final String ICON_FOLDER = "/icons/";
 
 	public static Icon loadIcon(String iconFilename) {
-		return IconLoader.findIcon(ICON_FOLDER + iconFilename);
+		return IconLoader.findIcon(ICON_FOLDER + iconFilename, GuiUtils.class);
 	}
 
 	public static Icon loadIcon(String iconFilename, String darkIconFilename) {
@@ -45,7 +45,7 @@ public class GuiUtils {
 		} else {
 			iconPath += iconFilename;
 		}
-		return IconLoader.findIcon(iconPath);
+		return IconLoader.findIcon(iconPath, GuiUtils.class);
 	}
 
 	private static boolean isUnderDarcula() {

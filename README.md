@@ -1,4 +1,4 @@
-# mongo-for-intellij
+# Mongo DB Browser
 
 ![Build](https://github.com/geetesh-gupta/mongo-for-intellij/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
@@ -19,7 +19,7 @@
   about releases containing new features and fixes.
 
 <!-- Plugin description -->
-This Mongo DB for IntelliJ Plugin allows you to easily access mongo collections from within the IntelliJ IDE.
+This Mongo DB Browser Plugin allows you to easily access mongo collections from within the IntelliJ IDE.
 <!-- Plugin description end -->
 
 ## Installation
@@ -27,7 +27,7 @@ This Mongo DB for IntelliJ Plugin allows you to easily access mongo collections 
 - Using IDE built-in plugin system:
 
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "
-  Mongo DB for IntelliJ"</kbd> >
+  Mongo DB Browser"</kbd> >
   <kbd>Install Plugin</kbd>
 
 - Manually:

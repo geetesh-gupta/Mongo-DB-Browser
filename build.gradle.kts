@@ -41,6 +41,7 @@ repositories {
 
 dependencies {
     implementation("org.mongodb:mongo-java-driver:3.12.11")
+    implementation("com.jcraft:jsch:0.1.55")
 }
 
 // Set the JVM language level used to compile sources and generate files - Java 11 is required since 2020.3

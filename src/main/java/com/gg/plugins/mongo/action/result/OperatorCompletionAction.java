@@ -75,21 +75,21 @@ public class OperatorCompletionAction extends AnAction implements Disposable, Du
 		final Document document = editor.getDocument();
 		CaretModel caretModel = editor.getCaretModel();
 		final int offset = caretModel.getOffset();
-		new PopupChooserBuilder(QUERY_OPERATOR_LIST).setMovable(false)
-		                                            .setCancelKeyEnabled(true)
-		                                            .setItemChoosenCallback(() -> {
-			                                            final String selectedQueryOperator =
-					                                            QUERY_OPERATOR_LIST.getSelectedValue();
-			                                            if (selectedQueryOperator == null)
-				                                            return;
+		new PopupChooserBuilder<>(QUERY_OPERATOR_LIST).setMovable(false)
+		                                              .setCancelKeyEnabled(true)
+		                                              .setItemChoosenCallback(() -> {
+			                                              final String selectedQueryOperator =
+					                                              QUERY_OPERATOR_LIST.getSelectedValue();
+			                                              if (selectedQueryOperator == null)
+				                                              return;
 
-			                                            WriteCommandAction.writeCommandAction(project)
-			                                                              .withName(MONGO_OPERATOR_COMPLETION)
-			                                                              .run(() -> document.insertString(offset,
-					                                                              selectedQueryOperator));
-		                                            })
-		                                            .createPopup()
-		                                            .showInBestPositionFor(editor);
+			                                              WriteCommandAction.writeCommandAction(project)
+			                                                                .withName(MONGO_OPERATOR_COMPLETION)
+			                                                                .run(() -> document.insertString(offset,
+					                                                                selectedQueryOperator));
+		                                              })
+		                                              .createPopup()
+		                                              .showInBestPositionFor(editor);
 	}
 
 	@Override

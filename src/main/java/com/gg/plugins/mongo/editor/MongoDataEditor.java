@@ -35,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 class MongoDataEditor extends UserDataHolderBase implements FileEditor {
@@ -132,8 +133,14 @@ class MongoDataEditor extends UserDataHolderBase implements FileEditor {
 
 	@Override
 	public @Nullable VirtualFile getFile() {
-		return (VirtualFile) super.getUserMap()
-		                          .get(Arrays.stream(super.getUserMap().getKeys()).collect(Collectors.toList()).get(1));
+		List<VirtualFile> fileList = Arrays.stream(super.getUserMap().getKeys())
+		                                   .filter(key -> super.getUserMap().get(key) instanceof VirtualFile)
+		                                   .map(key -> (VirtualFile) super.getUserMap().get(key))
+		                                   .collect(Collectors.toList());
+		if (!fileList.isEmpty()) {
+			return fileList.get(0);
+		}
+		return null;
 	}
 
 	private boolean isDisposed() {

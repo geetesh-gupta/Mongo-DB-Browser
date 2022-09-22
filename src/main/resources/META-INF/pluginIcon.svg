@@ -1,11 +1,28 @@
-<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M32.0845 7.94025V4H24.0203V7.9896H16.029V4H7.91553V7.94025H4V36H16.0044V32.0045C16.0058 30.9457 16.4274 29.9308 17.1766 29.1826C17.9258 28.4345 18.9412 28.0143 20 28.0143C21.0588 28.0143 22.0743 28.4345 22.8234 29.1826C23.5726 29.9308 23.9942 30.9457 23.9956 32.0045V36H36V7.94025H32.0845Z"
-          fill="url(#paint0_linear)"/>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 31.3 32.47">
     <defs>
-        <linearGradient id="paint0_linear" x1="2.94192" y1="4.89955" x2="37.7772" y2="39.7345" gradientUnits="userSpaceOnUse">
-            <stop offset="0.15937" stop-color="#3BEA62"/>
-            <stop offset="0.5404" stop-color="#3C99CC"/>
-            <stop offset="0.93739" stop-color="#6B57FF"/>
+        <linearGradient id="linear-gradient" x1="10.3" y1="17.23" x2="28.3" y2="17.23" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#cce0f4"/>
+            <stop offset="0.04" stop-color="#c3dcf2"/>
+            <stop offset="0.12" stop-color="#a9d2ee"/>
+            <stop offset="0.21" stop-color="#80c2e7"/>
+            <stop offset="0.32" stop-color="#47acde"/>
+            <stop offset="0.39" stop-color="#1e9cd7"/>
+            <stop offset="0.87" stop-color="#0075be"/>
+            <stop offset="0.99" stop-color="#005b97"/>
         </linearGradient>
     </defs>
+    <path d="M7.3,4.73h24v24H7.3Z" style="fill:none"/>
+    <path d="M28.3,14.23v3c0,2.49-4,4.5-9,4.5s-9-2-9-4.5v-3c0,2.49,4,4.5,9,4.5S28.3,16.72,28.3,14.23Zm-18,5c0,2.49,4,4.5,9,4.5s9-2,9-4.5v3c0,2.49-4,4.5-9,4.5s-9-2-9-4.5Zm9-2.5c-5,0-9-2-9-4.5s4-4.5,9-4.5,9,2,9,4.5S24.27,16.73,19.3,16.73Z"
+          style="fill:url(#linear-gradient)"/>
+    <g id="mongodb-leaf">
+        <path id="mongodb-leaf-stem"
+              d="M8,32.47l-.87-.3s.11-4.41-1.47-4.72c-1.06-1.22.17-51.86,4-.17a3.06,3.06,0,0,0-1.54,1.77A16.42,16.42,0,0,0,8,32.47Z"
+              style="fill:#a6a385"/>
+        <path id="mongodb-leaf-right"
+              d="M8.16,28.75s8.45-4.75,6-15.87C12.43,5.35,8.4,2.89,8,1.94A10.46,10.46,0,0,1,7,.08L7.32,21s-.84,6.94.82,7.72"
+              style="fill:#499d4a"/>
+        <path id="mongodb-leaf-left"
+              d="M6.7,28.48S-.4,23.63,0,15.09,5.44,2.36,6.41,1.6A2,2,0,0,0,7.1,0c.44,1,.36,14.19.42,15.75.19,6-.33,11.59-.82,12.73Z"
+              style="fill:#58aa50"/>
+    </g>
 </svg>
