@@ -43,6 +43,7 @@ import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.ui.ColoredTreeCellRenderer;
 import com.intellij.ui.DoubleClickListener;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.TreeSpeedSearch;
@@ -148,6 +149,30 @@ public class MongoExplorerPanel extends JPanel implements Disposable {
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.setName("mongoTree");
 		tree.setRootVisible(false);
+		tree.setCellRenderer(new ColoredTreeCellRenderer() {
+			@Override
+			public void customizeCellRenderer(@NotNull JTree tree,
+					Object value,
+					boolean selected,
+					boolean expanded,
+					boolean leaf,
+					int row,
+					boolean hasFocus) {
+				if (value instanceof MongoServer) {
+					setIcon(MongoConstants.MONGO_SERVER);
+					setToolTipText("Server: " + ((MongoServer) value).getLabel());
+					append(((MongoServer) value).getLabel());
+				} else if (value instanceof MongoDatabase) {
+					setIcon(MongoConstants.MONGO_DATABASE);
+					setToolTipText("Database: " + ((MongoDatabase) value).getName());
+					append(((MongoDatabase) value).getName());
+				} else if (value instanceof MongoCollection) {
+					setIcon(MongoConstants.MONGO_COLLECTION);
+					setToolTipText("Collection: " + ((MongoCollection) value).getName());
+					append(((MongoCollection) value).getName());
+				}
+			}
+		});
 
 		new TreeSpeedSearch(tree, treePath -> {
 			final Object node = treePath.getLastPathComponent();
