@@ -7,8 +7,6 @@ package com.gg.plugins.mongo.action.explorer;
 import com.gg.plugins.mongo.config.MongoConfiguration;
 import com.gg.plugins.mongo.config.ServerConfiguration;
 import com.gg.plugins.mongo.model.MongoServer;
-import com.gg.plugins.mongo.model.MongoTreeNode;
-import com.gg.plugins.mongo.model.MongoTreeNodeEnum;
 import com.gg.plugins.mongo.view.ConfigurationDialog;
 import com.gg.plugins.mongo.view.MongoExplorerPanel;
 import com.intellij.icons.AllIcons;
@@ -37,13 +35,12 @@ public class EditServerAction extends AnAction implements DumbAware {
 	public void update(AnActionEvent event) {
 		event.getPresentation()
 		     .setVisible(mongoExplorerPanel.getSelectedNode() != null &&
-		                 mongoExplorerPanel.getSelectedNode().getType() == MongoTreeNodeEnum.MongoServer);
+		                 mongoExplorerPanel.getSelectedNode() instanceof MongoServer);
 	}
 
 	@Override
 	public void actionPerformed(AnActionEvent event) {
-		MongoTreeNode selectedNode = mongoExplorerPanel.getSelectedNode();
-		MongoServer mongoServer = (MongoServer) selectedNode.getUserObject();
+		MongoServer selectedNode = (MongoServer) mongoExplorerPanel.getSelectedNode();
 		ServerConfiguration serverConfiguration = mongoExplorerPanel.getServerConfiguration(selectedNode);
 
 		ConfigurationDialog dialog =
@@ -57,7 +54,7 @@ public class EditServerAction extends AnAction implements DumbAware {
 		MongoConfiguration mongoConfiguration =
 				MongoConfiguration.getInstance(Objects.requireNonNull(event.getProject()));
 		mongoConfiguration.updateServerConfiguration(serverConfiguration);
-		if (mongoServer.isConnected()) {
+		if (selectedNode.isConnected()) {
 			mongoExplorerPanel.openServer(selectedNode);
 		}
 	}

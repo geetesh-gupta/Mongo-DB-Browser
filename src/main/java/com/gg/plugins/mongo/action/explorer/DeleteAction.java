@@ -5,8 +5,7 @@
 package com.gg.plugins.mongo.action.explorer;
 
 import com.gg.plugins.mongo.config.MongoConfiguration;
-import com.gg.plugins.mongo.model.MongoTreeNode;
-import com.gg.plugins.mongo.model.MongoTreeNodeEnum;
+import com.gg.plugins.mongo.model.MongoServer;
 import com.gg.plugins.mongo.view.MongoExplorerPanel;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -40,9 +39,9 @@ public class DeleteAction extends AnAction implements DumbAware {
 
 	@Override
 	public void actionPerformed(@NotNull AnActionEvent event) {
-		MongoTreeNode selectedNode = mongoExplorerPanel.getSelectedNode();
-		deleteItem(selectedNode.getType().type, selectedNode.getUserObject().toString(), () -> {
-			if (selectedNode.getType() == MongoTreeNodeEnum.MongoServer) {
+		Object selectedNode = mongoExplorerPanel.getSelectedNode();
+		deleteItem(mongoExplorerPanel.getTypeOfNode(selectedNode), selectedNode.toString(), () -> {
+			if (selectedNode instanceof MongoServer) {
 				MongoConfiguration mongoConfiguration =
 						MongoConfiguration.getInstance(Objects.requireNonNull(event.getProject()));
 				mongoConfiguration.removeServerConfiguration(mongoExplorerPanel.getServerConfiguration(selectedNode));

@@ -7,7 +7,6 @@ package com.gg.plugins.mongo.model;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class MongoDatabase implements Comparable<MongoDatabase> {
@@ -15,7 +14,7 @@ public class MongoDatabase implements Comparable<MongoDatabase> {
 
 	private final MongoServer parentServer;
 
-	private final SortedSet<MongoCollection> collections = new TreeSet<>();
+	private Set<MongoCollection> collections = new TreeSet<>();
 
 	public MongoDatabase(String name, MongoServer mongoServer) {
 		this.name = name;
@@ -24,6 +23,10 @@ public class MongoDatabase implements Comparable<MongoDatabase> {
 
 	public Set<MongoCollection> getCollections() {
 		return collections;
+	}
+
+	public void setCollections(Set<MongoCollection> collections) {
+		this.collections = collections;
 	}
 
 	public void addCollection(MongoCollection mongoCollection) {
@@ -47,4 +50,5 @@ public class MongoDatabase implements Comparable<MongoDatabase> {
 	public int compareTo(@NotNull MongoDatabase o) {
 		return name.compareTo(o.getName());
 	}
+
 }

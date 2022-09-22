@@ -49,6 +49,7 @@ public class MongoCollection implements Comparable<MongoCollection> {
 
 	@Override
 	public String toString() {
-		return "MongoCollection{" + "name='" + name + '\'' + '}';
+		return name;
+		//		return "MongoCollection{" + "name='" + name + '\'' + '}';
 	}
 }

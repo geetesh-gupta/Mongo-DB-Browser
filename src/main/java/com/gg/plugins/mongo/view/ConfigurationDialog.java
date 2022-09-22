@@ -26,7 +26,7 @@ public class ConfigurationDialog extends DialogWrapper {
 	public ConfigurationDialog(Project project, MongoExplorerPanel parent, ServerConfiguration configuration) {
 		super(parent, true);
 		this.project = project;
-		this.mongoService = parent.getMongoService();
+		this.mongoService = MongoService.getInstance(project);
 		this.configuration = configuration;
 
 		init();

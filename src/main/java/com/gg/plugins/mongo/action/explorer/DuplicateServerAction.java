@@ -6,7 +6,7 @@ package com.gg.plugins.mongo.action.explorer;
 
 import com.gg.plugins.mongo.config.MongoConfiguration;
 import com.gg.plugins.mongo.config.ServerConfiguration;
-import com.gg.plugins.mongo.model.MongoTreeNodeEnum;
+import com.gg.plugins.mongo.model.MongoServer;
 import com.gg.plugins.mongo.view.MongoExplorerPanel;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -33,9 +33,7 @@ public class DuplicateServerAction extends AnAction implements DumbAware {
 
 	@Override
 	public void update(AnActionEvent event) {
-		event.getPresentation()
-		     .setVisible(mongoExplorerPanel.getSelectedNode() != null &&
-		                 mongoExplorerPanel.getSelectedNode().getType() == MongoTreeNodeEnum.MongoServer);
+		event.getPresentation().setVisible(mongoExplorerPanel.getSelectedNode() instanceof MongoServer);
 	}
 
 	@Override

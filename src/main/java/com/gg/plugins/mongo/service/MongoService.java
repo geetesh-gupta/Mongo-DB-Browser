@@ -137,28 +137,19 @@ public class MongoService {
 			if (StringUtils.isNotEmpty(userDatabase)) {
 				com.mongodb.client.MongoDatabase database = mongoClient.getDatabase(userDatabase);
 				MongoDatabase mongoDatabase = new MongoDatabase(database.getName(), mongoServer);
-				mongoDatabases.add(createMongoDatabaseAndItsCollections(mongoDatabase, database));
+				mongoDatabases.add(mongoDatabase);
 			} else {
 				MongoIterable<String> databaseNames = mongoClient.listDatabaseNames();
 				for (String databaseName : databaseNames) {
 					com.mongodb.client.MongoDatabase database = mongoClient.getDatabase(databaseName);
 					MongoDatabase mongoDatabase = new MongoDatabase(database.getName(), mongoServer);
-					mongoDatabases.add(createMongoDatabaseAndItsCollections(mongoDatabase, database));
+					mongoDatabases.add(mongoDatabase);
 				}
 			}
 			return mongoDatabases;
 		};
 
 		return executeTask(configuration, perform);
-	}
-
-	private MongoDatabase createMongoDatabaseAndItsCollections(MongoDatabase mongoDatabase,
-			com.mongodb.client.MongoDatabase database) {
-		MongoIterable<String> collectionNames = database.listCollectionNames();
-		for (String collectionName : collectionNames) {
-			mongoDatabase.addCollection(new MongoCollection(collectionName, mongoDatabase));
-		}
-		return mongoDatabase;
 	}
 
 	private <T> T executeTask(ServerConfiguration configuration, TaskWithReturnedObject<T> perform) {
@@ -179,11 +170,15 @@ public class MongoService {
 		}
 	}
 
-	public MongoDatabase loadDatabase(MongoDatabase mongoDatabase, ServerConfiguration configuration) {
-		TaskWithReturnedObject<MongoDatabase> perform = mongoClient -> {
+	public Set<MongoCollection> loadCollections(MongoDatabase mongoDatabase, ServerConfiguration configuration) {
+		Set<MongoCollection> collections = new TreeSet<>();
+		TaskWithReturnedObject<Set<MongoCollection>> perform = mongoClient -> {
 			com.mongodb.client.MongoDatabase database = mongoClient.getDatabase(mongoDatabase.getName());
-			MongoDatabase mongoDatabaseNew = new MongoDatabase(database.getName(), mongoDatabase.getParentServer());
-			return createMongoDatabaseAndItsCollections(mongoDatabaseNew, database);
+			MongoIterable<String> collectionNames = database.listCollectionNames();
+			for (String collectionName : collectionNames) {
+				collections.add(new MongoCollection(collectionName, mongoDatabase));
+			}
+			return collections;
 		};
 
 		return executeTask(configuration, perform);
