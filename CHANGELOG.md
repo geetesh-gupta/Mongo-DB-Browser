@@ -13,3 +13,12 @@
 
 - Add Mongo DB Browser and Editor functionality
 
+## [0.0.2]
+
+- Fix compatibilities with 2022 IntelliJ versions
+- Update Icons
+
+## [0.0.3]
+
+- Add Console Runner
+
