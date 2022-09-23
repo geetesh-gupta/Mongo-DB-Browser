@@ -28,7 +28,7 @@ import com.intellij.execution.configurations.GeneralCommandLine;
 import com.intellij.execution.console.ConsoleHistoryController;
 import com.intellij.execution.console.ConsoleRootType;
 import com.intellij.execution.console.ProcessBackedConsoleExecuteActionHandler;
-import com.intellij.execution.process.ColoredProcessHandler;
+import com.intellij.execution.process.KillableColoredProcessHandler;
 import com.intellij.execution.process.OSProcessHandler;
 import com.intellij.execution.runners.AbstractConsoleRunnerWithHistory;
 import com.intellij.openapi.project.Project;
@@ -79,19 +79,14 @@ public class MongoConsoleRunner extends AbstractConsoleRunnerWithHistory<MongoCo
 
 	@Override
 	protected OSProcessHandler createProcessHandler(Process process) {
-		return new ColoredProcessHandler(process, MongoConfiguration.getInstance(getProject()).getShellPath());
+		return new KillableColoredProcessHandler(process, MongoConfiguration.getInstance(getProject()).getShellPath());
 	}
 
 	@NotNull
 	@Override
 	protected ProcessBackedConsoleExecuteActionHandler createExecuteActionHandler() {
 		ProcessBackedConsoleExecuteActionHandler handler =
-				new ProcessBackedConsoleExecuteActionHandler(getProcessHandler(), false) {
-					@Override
-					public String getEmptyExecuteAction() {
-						return "Mongo.Shell.Execute";
-					}
-				};
+				new ProcessBackedConsoleExecuteActionHandler(getProcessHandler(), false);
 		new ConsoleHistoryController(new ConsoleRootType("Mongo Shell", null) {}, null, getConsoleView()).install();
 		return handler;
 	}
