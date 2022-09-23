@@ -37,7 +37,7 @@ import java.awt.*;
 
 public class MongoConfigurable extends BaseConfigurable implements SearchableConfigurable {
 
-	public static final String PLUGIN_SETTINGS_NAME = "Mongo Plugin";
+	public static final String PLUGIN_SETTINGS_NAME = "Mongo DB Browser";
 
 	private final Project project;
 

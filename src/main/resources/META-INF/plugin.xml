@@ -1,6 +1,5 @@
 <!--
-  ~ Copyright (c) 2018 David Boissier.
-  ~ Modifications Copyright (c) 2022 Geetesh Gupta.
+  ~ Copyright (c) 2022 Geetesh Gupta.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -24,7 +23,7 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Mongo Tool Window" secondary="true" icon="AllIcons.General.Modified" anchor="right"
+        <toolWindow id="Mongo DB Browser" icon="MyIcons.Logo" anchor="right"
                     factoryClass="com.gg.plugins.mongo.view.MongoExplorerPanelFactory"/>
 
         <projectService serviceImplementation="com.gg.plugins.mongo.service.MongoService"/>
@@ -35,7 +34,7 @@
 
         <fileEditorProvider implementation="com.gg.plugins.mongo.editor.MongoDataEditorProvider"/>
 
-        <projectConfigurable groupId="tools" groupWeight="10" displayName="Mongo Plugin"
+        <projectConfigurable groupId="tools" groupWeight="10" displayName="Mongo DB Browser"
                              instance="com.gg.plugins.mongo.view.MongoConfigurable"
                              id="preferences.mongoOptions"/>
 
