@@ -22,3 +22,7 @@
 
 - Add Console Runner
 
+## [0.0.4]
+
+- Update description
+
