@@ -7,7 +7,7 @@
 <!-- Plugin description -->
 This Mongo DB Browser Plugin allows you to easily access mongo collections from within the IntelliJ IDE.
 
-[![Mongo DB Browser YouTube Video](https://user-images.githubusercontent.com/34645022/192192583-09c6ce32-d270-485c-8bf4-893b31ee0145.png)](http://www.youtube.com/watch?v=mSWgqWe1nFg "Mongo DB Browser YouTube Video")
+[![Mongo DB Browser YouTube Video](https://user-images.githubusercontent.com/34645022/192192583-09c6ce32-d270-485c-8bf4-893b31ee0145.png)](https://www.youtube.com/watch?v=mSWgqWe1nFg "Mongo DB Browser YouTube Video")
 
 ![Add a Mongo Server Window](https://user-images.githubusercontent.com/34645022/192191737-854e969e-4492-4257-892c-65d2b5235b50.png)
 ![Mongo DB Browser Window](https://user-images.githubusercontent.com/34645022/192191742-888d19e9-9e0e-448a-912b-2b64d4a090d2.png)
