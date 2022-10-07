@@ -26,3 +26,9 @@
 
 - Update description
 
+## [0.1.0]
+
+- Migrate codebase to kotlin
+    - Might have bugs. If you found any, please raise an issue on
+      the [GitHub](https://github.com/geetesh-gupta/Mongo-DB-Browser/issues) page .
+

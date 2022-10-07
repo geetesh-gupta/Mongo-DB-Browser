@@ -1,6 +1,6 @@
 # Mongo DB Browser
 
-![Build](https://github.com/geetesh-gupta/mongo-for-intellij/workflows/Build/badge.svg)
+![Build](https://github.com/geetesh-gupta/Mongo-DB-Browser/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/20002-mongo-db-browser.svg)](https://plugins.jetbrains.com/plugin/20002-mongo-db-browser)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/20002-mongo-db-browser.svg)](https://plugins.jetbrains.com/plugin/20002-mongo-db-browser)
 

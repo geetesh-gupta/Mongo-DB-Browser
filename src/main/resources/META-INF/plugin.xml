@@ -23,7 +23,7 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Mongo DB Browser" icon="MyIcons.Logo" anchor="right"
+        <toolWindow id="Mongo DB Browser" icon="MyIcons.Companion.Logo" anchor="right"
                     factoryClass="com.gg.plugins.mongo.view.MongoExplorerPanelFactory"/>
 
         <projectService serviceImplementation="com.gg.plugins.mongo.service.MongoService"/>
