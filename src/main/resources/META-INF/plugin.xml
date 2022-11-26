@@ -38,7 +38,7 @@
                              instance="com.gg.plugins.mongo.view.MongoConfigurable"
                              id="preferences.mongoOptions"/>
 
-        <notificationGroup id="Mongo" displayType="BALLOON"/>
+        <notificationGroup id="MongoDBBrowserNotificationGroup" displayType="BALLOON"/>
     </extensions>
 
     <applicationListeners>

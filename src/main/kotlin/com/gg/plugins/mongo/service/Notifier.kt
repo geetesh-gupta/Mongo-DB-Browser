@@ -16,33 +16,27 @@
  */
 package com.gg.plugins.mongo.service
 
-import com.intellij.notification.NotificationGroup
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.Project
 
 class Notifier private constructor(private val project: Project) {
-    private val notificationGroup: NotificationGroup =
-        NotificationGroupManager.getInstance().getNotificationGroup(MONGO_NOTIFICATION_GROUP)
-
-    fun notify(message: String, notificationType: NotificationType?) {
-        notificationGroup.createNotification("[MongoPlugin] $message", notificationType!!).notify(project)
+    private fun notify(message: String?, notificationType: NotificationType?) {
+        if (NotificationGroupManager.getInstance() != null) {
+            NotificationGroupManager.getInstance().getNotificationGroup("MongoDBBrowserNotificationGroup")
+                .createNotification("[MongoDBBrowser] $message", notificationType!!).notify(project)
+        }
     }
 
     fun notifyInfo(message: String?) {
-        notificationGroup.createNotification(message!!, NotificationType.INFORMATION).notify(
-            project
-        )
+        notify(message, NotificationType.INFORMATION)
     }
 
     fun notifyError(content: String?) {
-        notificationGroup.createNotification(content!!, NotificationType.ERROR).notify(
-            project
-        )
+        notify(content, NotificationType.ERROR)
     }
 
     companion object {
-        private const val MONGO_NOTIFICATION_GROUP = "Mongo"
         fun getInstance(project: Project): Notifier {
             return project.getService(Notifier::class.java)
         }
