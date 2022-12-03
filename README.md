@@ -1,6 +1,6 @@
 # Mongo DB Browser
 
-![Build](https://github.com/geetesh-gupta/Mongo-DB-Browser/workflows/Build/badge.svg)
+![Build](https://github.com/geetesh-gupta/Mongo-DB-Browser-Private/workflows/Build/badge.svg)
 [![Version](https://img.shields.io/jetbrains/plugin/v/20002-mongo-db-browser.svg)](https://plugins.jetbrains.com/plugin/20002-mongo-db-browser)
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/20002-mongo-db-browser.svg)](https://plugins.jetbrains.com/plugin/20002-mongo-db-browser)
 
@@ -9,20 +9,27 @@ This Mongo DB Browser Plugin allows you to easily access mongo collections from 
 
 [![Mongo DB Browser YouTube Video](https://user-images.githubusercontent.com/34645022/192192583-09c6ce32-d270-485c-8bf4-893b31ee0145.png)](https://www.youtube.com/watch?v=mSWgqWe1nFg "Mongo DB Browser YouTube Video")
 
-![Add a Mongo Server Window](https://user-images.githubusercontent.com/34645022/192191737-854e969e-4492-4257-892c-65d2b5235b50.png)
-![Mongo DB Browser Window](https://user-images.githubusercontent.com/34645022/192191742-888d19e9-9e0e-448a-912b-2b64d4a090d2.png)
+[//]: # (![Add a Mongo Server Window]&#40;https://user-images.githubusercontent.com/34645022/192191737-854e969e-4492-4257-892c-65d2b5235b50.png&#41;)
 
-All the current and upcoming features are listed here.
+[//]: # (![Mongo DB Browser Window]&#40;https://user-images.githubusercontent.com/34645022/192191742-888d19e9-9e0e-448a-912b-2b64d4a090d2.png&#41;)
 
-## Features
+#### Note:- We are transitioning to a freemium model in order to deliver better and more timely updates. Existing features will not be effected. We will be adding new features soon, which may be limited to the freemium category.
+
+All completed/planned features are listed here.
+
+### Free Features
 
 - [x] Add Mongo DB Browser and Editor functionality
 - [x] Add console runner
 - [x] Add Pagination support
 
-## Upcoming
+### Freemium Features
 
-- [ ] Import/Export Collections/Outputs/Queries/Filters
+- [x] Import/Export Collections/Databases
+- [x] SQL Query support
+
+### Upcoming Features
+- [ ] Import/Export Outputs/Queries/Filters
 - [ ] Add custom scripts using JavaScript to process the output results
 
 ## Feedback/Suggestion
