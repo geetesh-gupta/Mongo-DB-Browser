@@ -19,9 +19,12 @@ All completed/planned features are listed here.
 
 ### Free Features
 
-- [x] Add Mongo DB Browser and Editor functionality
-- [x] Add console runner
-- [x] Add Pagination support
+- [x] Mongo DB documents Browser
+- [x] Mongo DB documents Editor
+- [x] Filter/Project/Sort queries
+- [x] Aggregation queries
+- [x] Console commands runner
+- [x] Pagination support
 
 ### Freemium Features
 
