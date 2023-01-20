@@ -13,11 +13,7 @@ This Mongo DB Browser Plugin allows you to easily access mongo collections from 
 
 [//]: # (![Mongo DB Browser Window]&#40;https://user-images.githubusercontent.com/34645022/192191742-888d19e9-9e0e-448a-912b-2b64d4a090d2.png&#41;)
 
-#### Note:- We are transitioning to a freemium model in order to deliver better and more timely updates. Existing features will not be effected. We will be adding new features soon, which may be limited to the freemium category.
-
-All completed/planned features are listed here.
-
-### Free Features
+## Features
 
 - [x] Mongo DB documents Browser
 - [x] Mongo DB documents Editor
@@ -25,9 +21,6 @@ All completed/planned features are listed here.
 - [x] Aggregation queries
 - [x] Console commands runner
 - [x] Pagination support
-
-### Freemium Features
-
 - [x] Import/Export Collections/Databases
 - [x] SQL Query support
 
@@ -44,7 +37,7 @@ on https://github.com/geetesh-gupta/Mongo-DB-Browser/issues.
 
 ## Compatibility Range
 
-- 213—222.*
+- 213—223.*
 - Check https://plugins.jetbrains.com/plugin/20002-mongo-db-browser/versions for further details
 
 ## Installation
@@ -60,6 +53,9 @@ on https://github.com/geetesh-gupta/Mongo-DB-Browser/issues.
   Download the [latest version](https://plugins.jetbrains.com/plugin/20002-mongo-db-browser) and install it manually
   using
   <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+
+## Privacy Notice
+This project does not collect or process any personal data. All data processing used in this project is local to the user.
 
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].
